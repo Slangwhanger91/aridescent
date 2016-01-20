@@ -5,16 +5,35 @@ import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
 
 public class GameWindow {
+	
+	private static Player player;
+	
 	public static void main(String[] args) throws Exception{
 		Display.setDisplayMode(new DisplayMode(640, 480));
 		Display.create();
+		
+		player = new Player();
+		Platform platform = new Platform();
+		//Enemy enemy = new Enemy();
+		
 		while(!Display.isCloseRequested()){
+			//
 			setCamera();
 			drawBackground();
 			
-			// Game logic should fit here
+			// Player logic and animation
+			player.logic();
+			player.draw();
+
+			// Platforms logic and animation
+			platform.logic();
+			platform.draw();
 			
+			// Enemy logic and animation
+			//enemy.logic();
+			//enemy.draw();
 			
+			//
 			Display.update();
 			Display.sync(60);
 		}
