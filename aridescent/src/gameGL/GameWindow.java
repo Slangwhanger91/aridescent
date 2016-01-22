@@ -33,10 +33,7 @@ public class GameWindow {
 
 		setCamera();
 
-		while(!Display.isCloseRequested()){
-			if (exitFlag) {
-				break;
-			}
+		while(!Display.isCloseRequested() && !exitFlag){
 			// Clear screen to black every frame
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
