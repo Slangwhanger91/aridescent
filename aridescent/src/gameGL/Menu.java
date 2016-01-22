@@ -21,6 +21,11 @@ public class Menu {
     }
 
     void loop() {
+        long now;
+        long tick = 0;
+        long diff;
+        long diff_target = 17;
+
         while (true) {
             if (exitFlag || endMenuFlag) {
                 break;
@@ -29,13 +34,24 @@ public class Menu {
                 exitFlag = true;
                 break;
             }
+            now = System.currentTimeMillis();
             glClear(GL_COLOR_BUFFER_BIT);
 
             draw();
             poll();
 
             Display.update();
-            Display.sync(60);
+            //Display.sync(60);
+            diff = System.currentTimeMillis() - now;
+            if (diff < diff_target) {
+                try {
+                    Thread.sleep(1+(diff_target-diff));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.printf("tick=%d, diff=%d, diff_target=%d\n", tick, diff, diff_target);
+            tick++;
         }
     }
 
