@@ -5,6 +5,13 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.Rectangle;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
+
+
+import java.io.IOException;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -15,6 +22,16 @@ public class Menu {
     private Rectangle testRectangle = new Rectangle(10, 10, 50, 50);
     MouseOverRectangle morTest = new MouseOverRectangle(50, 50, 100, 100);
     private PollableEvents[] checkList = new PollableEvents[4];
+    private Texture testTexture;
+
+    public Menu() {
+        try {
+            testTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("exampleIcon.png"));
+            System.out.printf("testTexture: width=%d, height=%d\n", testTexture.getImageWidth(), testTexture.getImageHeight());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public boolean show() {
         init();
@@ -23,6 +40,7 @@ public class Menu {
     }
 
     void init() {
+        glEnable(GL_TEXTURE_2D); // FIXME: replace with shaders?
         setCamera();
         checkList[0] = morTest;
     }
@@ -73,6 +91,25 @@ public class Menu {
         drawRectangle(testRectangle);
         glColor3d(0.5, 0.5, 0.5);
         drawRectangle(morTest.area);
+
+        final float posmod = 100;
+        drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
+    }
+
+    void drawTexture(Texture tex, float x1, float y1, float x2, float y2) {
+        Color.white.bind();
+        tex.bind();
+
+        glBegin(GL_POLYGON);
+        glTexCoord2f(0, tex.getHeight());
+        glVertex2d(x1, y1);
+        glTexCoord2f(0, 0);
+        glVertex2d(x1, y2);
+        glTexCoord2f(tex.getWidth(), 0);
+        glVertex2d(x2, y2);
+        glTexCoord2f(tex.getWidth(), tex.getHeight());
+        glVertex2d(x2, y1);
+        glEnd();
     }
 
     void drawRectangle(int x1, int y1, int x2, int y2) {
@@ -130,7 +167,7 @@ public class Menu {
     void setCamera(){
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(0, 640, 0, 480, 0, 1);
+        glOrtho(0, 640, 0, 480, 1, -1);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
@@ -138,7 +175,7 @@ public class Menu {
 }
 
 interface PollableEvents {
-    /* Messy start on a events interface */
+    /* Messy start on an events interface */
     void check();
     void action();
 }
