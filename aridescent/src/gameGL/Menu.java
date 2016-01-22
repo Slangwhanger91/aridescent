@@ -18,11 +18,13 @@ import static org.lwjgl.opengl.GL11.*;
 public class Menu {
     private boolean endMenuFlag = false;
     private boolean exitFlag = false;
+    private boolean unpauseFlag = false;
 
     private Rectangle testRectangle = new Rectangle(10, 10, 50, 50);
     MouseOverRectangle morTest = new MouseOverRectangle(50, 50, 100, 100);
     private PollableEvents[] checkList = new PollableEvents[4];
     private Texture testTexture;
+    private int lastKey;
 
     public Menu() {
         try {
@@ -43,6 +45,7 @@ public class Menu {
         glEnable(GL_TEXTURE_2D);
         setCamera();
         checkList[0] = morTest;
+        Keyboard.enableRepeatEvents(true);
     }
 
     void loop() {
@@ -82,6 +85,42 @@ public class Menu {
         }
     }
 
+    void pause() {
+        /* Goes into the pause-loop */
+        long now;
+        long tick = 0;
+        long diff;
+        long diff_target = 30; // Used to decide target fps
+
+        while (true) {
+            if (unpauseFlag) {
+                break;
+            } else if (Display.isCloseRequested()) {
+                /* Make sure we exit if [X] was pressed */
+                exitFlag = true;
+                break;
+            }
+            now = System.currentTimeMillis();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            draw();
+            pauseDraw();
+            pausePoll();
+
+            Display.update();
+            diff = System.currentTimeMillis() - now;
+            if (diff < diff_target) {
+                try {
+                    Thread.sleep(1+(diff_target-diff));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.printf("pause_tick=%d, diff=%d, diff_target=%d\n", tick, diff, diff_target);
+            tick++;
+        }
+    }
+
     void draw() {
         glColor3d(1.0, 0, 0);
         drawRectangle(5, 5, 50, 50);
@@ -95,6 +134,10 @@ public class Menu {
         final float posmod = 296;
         drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
     }
+
+    void pauseDraw() {
+    }
+
 
     void drawTexture(Texture tex, float x1, float y1, float x2, float y2) {
         Color.white.bind();
@@ -125,6 +168,25 @@ public class Menu {
 
     void drawRectangle(Rectangle rect) {
         glRectf(rect.getX(), rect.getY(), rect.getX()+rect.getWidth(), rect.getY()+rect.getHeight());
+    }
+
+    void pausePoll() {
+        while (Keyboard.next()) {
+            int event = Keyboard.getEventKey();
+            if (Keyboard.getEventKeyState()) {
+                switch (event) {
+                    case (Keyboard.KEY_P): {
+                        unpauseFlag = true;
+                        break;
+                    }
+                    case (Keyboard.KEY_ESCAPE): {
+                        exitFlag = true;
+                        unpauseFlag = true;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     void poll() {
@@ -161,6 +223,18 @@ public class Menu {
         for (PollableEvents pe: checkList) {
             if (pe != null) {
                 pe.check();
+            }
+        }
+
+        while (Keyboard.next()) {
+            int event = Keyboard.getEventKey();
+            if (Keyboard.getEventKeyState()) {
+                switch (event) {
+                    case (Keyboard.KEY_P): {
+                        unpauseFlag = false;
+                        pause();
+                    }
+                }
             }
         }
     }
