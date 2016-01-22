@@ -1,24 +1,45 @@
 package gameGL;
 
+import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
 
 public class GameWindow {
 	
-	private static Player player;
+	private Player player;
+	private boolean exitFlag = false;
 	
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args) throws Exception {
+		try {
+			new GameWindow().start();
+		} catch (LWJGLException le) {
+			le.printStackTrace();
+		}
+	}
+
+	void start() throws LWJGLException {
 		Display.setDisplayMode(new DisplayMode(640, 480));
 		Display.create();
-		
+
 		player = new Player();
 		Platform platform = new Platform();
 		//Enemy enemy = new Enemy();
-		
+
+		Menu testMenu = new Menu();
+        /* Checks return value from menu to decide to start game or just exit program. */
+		exitFlag = testMenu.show();
+
+		setCamera();
+
 		while(!Display.isCloseRequested()){
-			//
-			setCamera();
+			if (exitFlag) {
+				break;
+			}
+			// Clear screen to black every frame
+			glClear(GL_COLOR_BUFFER_BIT);
+
 			drawBackground();
 			
 			// Player logic and animation
@@ -33,16 +54,29 @@ public class GameWindow {
 			//enemy.logic();
 			//enemy.draw();
 			
-			//
+			poll();
 			Display.update();
 			Display.sync(60);
 		}
 		Display.destroy();
 	}
 
-	public static void setCamera(){
-		// Clear screen to black every frame
-		glClear(GL_COLOR_BUFFER_BIT);
+	void poll() {
+		/* Doesn't seem neccesary.
+		if (!Keyboard.isCreated()) {
+			try {
+				Keyboard.create();
+			} catch (LWJGLException e) {
+				e.printStackTrace();
+			}
+		}
+		*/
+        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+			exitFlag = true;
+        }
+    }
+
+	void setCamera(){
 		// Modify projection Matrix
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -53,7 +87,7 @@ public class GameWindow {
 		glLoadIdentity();
 	}
 
-	public static void drawBackground(){
+	void drawBackground(){
 		// Sky
 
 		glBegin(GL_QUADS);
