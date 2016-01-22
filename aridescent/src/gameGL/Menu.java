@@ -26,7 +26,7 @@ public class Menu {
 
     public Menu() {
         try {
-            testTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("exampleIcon.png"));
+            testTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("test_image.png"));
             System.out.printf("testTexture: width=%d, height=%d\n", testTexture.getImageWidth(), testTexture.getImageHeight());
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,7 +40,7 @@ public class Menu {
     }
 
     void init() {
-        glEnable(GL_TEXTURE_2D); // FIXME: replace with shaders?
+        glEnable(GL_TEXTURE_2D);
         setCamera();
         checkList[0] = morTest;
     }
@@ -92,13 +92,13 @@ public class Menu {
         glColor3d(0.5, 0.5, 0.5);
         drawRectangle(morTest.area);
 
-        final float posmod = 100;
+        final float posmod = 296;
         drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
     }
 
     void drawTexture(Texture tex, float x1, float y1, float x2, float y2) {
         Color.white.bind();
-        tex.bind();
+        glBindTexture(GL_TEXTURE_2D, tex.getTextureID());
 
         glBegin(GL_POLYGON);
         glTexCoord2f(0, tex.getHeight());
@@ -110,6 +110,7 @@ public class Menu {
         glTexCoord2f(tex.getWidth(), tex.getHeight());
         glVertex2d(x2, y1);
         glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void drawRectangle(int x1, int y1, int x2, int y2) {
