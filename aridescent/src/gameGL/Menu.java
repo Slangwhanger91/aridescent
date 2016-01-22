@@ -68,7 +68,7 @@ public class Menu {
     void setCamera(){
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(0, 640, 0, 480, -1, 1);
+        glOrtho(0, 640, 480, 0, 0, 1);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
