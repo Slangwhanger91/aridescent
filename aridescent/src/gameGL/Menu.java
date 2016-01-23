@@ -9,6 +9,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureImpl;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
@@ -67,6 +68,9 @@ public class Menu {
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void loop() {
@@ -142,20 +146,20 @@ public class Menu {
         drawRectangle(morTest.area);
 
         //Color.white.bind();
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        font.drawString(450f, 300f, "Press S to start", Color.black);
+        font.drawString(450f, 300f, "S » Start", Color.black);
+        font.drawString(450f, 324f, "P » Pause", Color.black);
+        /* FIXME: Move mouse coords logic to a logic() function, so it doesnt update during pause */
         font.drawString(450f, 350f, String.format("(%d, %d)", Mouse.getX(), HEIGHT-Mouse.getY()), Color.black);
         font.drawString(450f, 375f, String.format("(%d, %d)", Mouse.getX(), Mouse.getY()), Color.black);
         font.drawString(25f, 450f, "Hold numpad 1-3 for debug", Color.black);
-        glDisable(GL_BLEND);
+        //glDisable(GL_BLEND);
 
         if (drag) {
             testRectangle.setX(Mouse.getEventX() - (testRectangle.getWidth() / 2));
             testRectangle.setY(HEIGHT - (Mouse.getEventY() + (testRectangle.getHeight() / 2)));
         }
-        //final float posmod = 296;
-        //drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
+        final float posmod = 296;
+        drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
     }
 
     void drawLine(float x, float y) {
@@ -169,6 +173,7 @@ public class Menu {
     }
 
 
+    /* For when (0,0) is bottom-left
     void drawTexture(Texture tex, float x1, float y1, float x2, float y2) {
         Color.white.bind();
         glBindTexture(GL_TEXTURE_2D, tex.getTextureID());
@@ -183,7 +188,29 @@ public class Menu {
         glTexCoord2f(tex.getWidth(), tex.getHeight());
         glVertex2d(x2, y1);
         glEnd();
+        glTexCoord2f(0, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    */
+
+    /* For when (0,0) is top-left */
+    void drawTexture(Texture tex, float x1, float y1, float x2, float y2) {
+        Color.white.bind();
+        tex.bind();
+        //glBindTexture(GL_TEXTURE_2D, tex.getTextureID());
+
+        glBegin(GL_POLYGON);
+        glTexCoord2f(0, 0);
+        glVertex2d(x1, y1);
+        glTexCoord2f(0, tex.getHeight());
+        glVertex2d(x1, y2);
+        glTexCoord2f(tex.getWidth(), tex.getHeight());
+        glVertex2d(x2, y2);
+        glTexCoord2f(tex.getWidth(), 0);
+        glVertex2d(x2, y1);
+        glEnd();
+        //glBindTexture(GL_TEXTURE_2D, 0);
+        TextureImpl.bindNone();
     }
 
     void drawRectangle(int x1, int y1, int x2, int y2) {
