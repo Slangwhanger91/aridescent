@@ -80,7 +80,7 @@ public class Menu {
                     e.printStackTrace();
                 }
             }
-            System.out.printf("tick=%d, diff=%d, diff_target=%d\n", tick, diff, diff_target);
+            debug("tick=%d, diff=%d, diff_target=%d", tick, diff, diff_target);
             tick++;
         }
     }
@@ -116,7 +116,7 @@ public class Menu {
                     e.printStackTrace();
                 }
             }
-            System.out.printf("pause_tick=%d, diff=%d, diff_target=%d\n", tick, diff, diff_target);
+            debug("pause_tick=%d, diff=%d, diff_target=%d", tick, diff, diff_target);
             tick++;
         }
     }
@@ -195,9 +195,6 @@ public class Menu {
         if (Mouse.isButtonDown(0)) {
             endMenuFlag = true;
         }
-        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-            exitFlag = true;
-        }
 
         if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
             if (testRectangle.getY() > 0) {
@@ -226,6 +223,7 @@ public class Menu {
             }
         }
 
+        int eventCtr = 0;
         while (Keyboard.next()) {
             int event = Keyboard.getEventKey();
             if (Keyboard.getEventKeyState()) {
@@ -233,9 +231,34 @@ public class Menu {
                     case (Keyboard.KEY_P): {
                         unpauseFlag = false;
                         pause();
+                        break;
+                    }
+                    case (Keyboard.KEY_ESCAPE): {
+                        exitFlag = true;
+                        break;
                     }
                 }
             }
+            eventCtr++;
+        }
+        debug("poll() eventCtr=%d", eventCtr);
+    }
+
+    static void debug(String format, Object... objs) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
+            System.out.printf(format + "\n", objs);
+        }
+    }
+
+    static void debug2(String format, Object... objs) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD2)) {
+            System.out.printf(format + "\n", objs);
+        }
+    }
+
+    static void debug3(String format, Object... objs) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
+            System.out.printf(format + "\n", objs);
         }
     }
 
@@ -270,7 +293,7 @@ class MouseOverRectangle implements PollableEvents {
 
     public void check() {
         Point position = new Point(Mouse.getX(), Mouse.getY());
-        System.out.println(position);
+        Menu.debug2(position.toString());
         if (area.contains(position)) {
             action();
         }
