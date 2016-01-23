@@ -29,8 +29,8 @@ public class Menu {
     MouseOverRectangle morTest = new MouseOverRectangle(50, 50, 100, 100);
     private PollableEvents[] checkList = new PollableEvents[4];
     private Texture testTexture;
-    private int follow_x = 0;
-    private int follow_y = 0;
+    int mouseX;
+    int mouseY;
     private Font font;
     private int lastMouseEvent = -1;
     private boolean drag = false;
@@ -92,6 +92,7 @@ public class Menu {
             now = System.currentTimeMillis();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            logic();
             render();
             poll();
 
@@ -134,32 +135,35 @@ public class Menu {
         }
     }
 
+    void logic() {
+        if (drag) {
+            testRectangle.setX(Mouse.getEventX() - (testRectangle.getWidth() / 2));
+            testRectangle.setY(HEIGHT - (Mouse.getEventY() + (testRectangle.getHeight() / 2)));
+        }
+    }
+
     void render() {
         glColor3d(1.0, 0, 0);
-        drawRectangle(follow_x, follow_y, follow_x+6, follow_y+6);
-        drawLine(follow_x, follow_y);
+        drawRectangle(mouseX, HEIGHT-mouseY, mouseX+6, (HEIGHT-mouseY)+6);
+        drawLine(mouseX, HEIGHT-mouseY);
         glColor3d(0, 1, 0);
         glRectf(25, 75, 25+225, 25+225);
-        glColor3d(0, 0, 1);
-        drawRectangle(testRectangle);
         glColor3d(0.5, 0.5, 0.5);
         drawRectangle(morTest.area);
 
         //Color.white.bind();
         font.drawString(450f, 300f, "S » Start", Color.black);
         font.drawString(450f, 324f, "P » Pause", Color.black);
-        /* FIXME: Move mouse coords logic to a logic() function, so it doesnt update during pause */
-        font.drawString(450f, 350f, String.format("(%d, %d)", Mouse.getX(), HEIGHT-Mouse.getY()), Color.black);
-        font.drawString(450f, 375f, String.format("(%d, %d)", Mouse.getX(), Mouse.getY()), Color.black);
+        font.drawString(450f, 350f, String.format("(%d, %d)", mouseX, HEIGHT-mouseY), Color.black);
+        font.drawString(450f, 375f, String.format("(%d, %d)", mouseX, mouseY), Color.black);
         font.drawString(25f, 450f, "Hold numpad 1-3 for debug", Color.black);
         //glDisable(GL_BLEND);
 
-        if (drag) {
-            testRectangle.setX(Mouse.getEventX() - (testRectangle.getWidth() / 2));
-            testRectangle.setY(HEIGHT - (Mouse.getEventY() + (testRectangle.getHeight() / 2)));
-        }
         final float posmod = 296;
         drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
+
+        glColor4d(0, 0, 1, 0.5f);
+        drawRectangle(testRectangle);
     }
 
     void drawLine(float x, float y) {
@@ -252,8 +256,8 @@ public class Menu {
             switch (mouseEvent) {
                 case (-1): {
                     /* Handles position events */
-                    follow_x = Mouse.getX();
-                    follow_y = HEIGHT-Mouse.getY();
+                    mouseX = Mouse.getX();
+                    mouseY = Mouse.getY();
                     break;
                 }
                 default: {
@@ -269,6 +273,7 @@ public class Menu {
                         }
                         debug2("mouseEvent=%d state=down\n", mouseEvent);
                     } else {
+                        /* Up state */
                         switch (mouseEvent) {
                             case (0): {
                                 drag = false;
