@@ -31,6 +31,8 @@ public class Menu {
     private int follow_x = 0;
     private int follow_y = 0;
     private Font font;
+    private int lastMouseEvent = -1;
+    private boolean drag = false;
 
     public Menu() {
         try {
@@ -71,7 +73,7 @@ public class Menu {
         long now;
         long tick = 0;
         long diff;
-        long diff_target = 17;
+        long diff_target = 7;
 
         glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
 
@@ -148,6 +150,10 @@ public class Menu {
         font.drawString(25f, 450f, "Hold numpad 1-3 for debug", Color.black);
         glDisable(GL_BLEND);
 
+        if (drag) {
+            testRectangle.setX(Mouse.getEventX() - (testRectangle.getWidth() / 2));
+            testRectangle.setY(HEIGHT - (Mouse.getEventY() + (testRectangle.getHeight() / 2)));
+        }
         //final float posmod = 296;
         //drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
     }
@@ -218,17 +224,33 @@ public class Menu {
             int mouseEvent = Mouse.getEventButton();
             switch (mouseEvent) {
                 case (-1): {
+                    /* Handles position events */
                     follow_x = Mouse.getX();
                     follow_y = HEIGHT-Mouse.getY();
                     break;
                 }
-                case (0): {
-                    testRectangle.setX(Mouse.getEventX()-(testRectangle.getWidth()/2));
-                    testRectangle.setY(HEIGHT-(Mouse.getEventY()+(testRectangle.getHeight()/2)));
-                    break;
-                }
                 default: {
-                    System.out.printf("mouseEvent=%d\n", mouseEvent);
+                    /* Handles click events */
+                    if (Mouse.getEventButtonState()) {
+                        /* Down state */
+                        switch (mouseEvent) {
+                            case (0): {
+                                drag = true;
+                                /* FIXME: Replace drag boolean with register()/unregister() system? */
+                                break;
+                            }
+                        }
+                        debug2("mouseEvent=%d state=down\n", mouseEvent);
+                    } else {
+                        switch (mouseEvent) {
+                            case (0): {
+                                drag = false;
+                                break;
+                            }
+                        }
+                        debug2("mouseEvent=%d state=up\n", mouseEvent);
+                    }
+                    break;
                 }
             }
         }
@@ -292,7 +314,6 @@ interface PollableEvents {
 class MouseOverRectangle implements PollableEvents {
     /* Messy example of mouseover area class */
     Rectangle area;
-    boolean reset = false;
 
     public MouseOverRectangle(Rectangle rect) {
         this.area = rect;
