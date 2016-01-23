@@ -6,6 +6,8 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.Rectangle;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.Font;
+import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -16,6 +18,8 @@ import java.io.IOException;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Menu {
+    final static int WIDTH = 640;
+    final static int HEIGHT = 480;
     private boolean endMenuFlag = false;
     private boolean exitFlag = false;
     private boolean unpauseFlag = false;
@@ -24,7 +28,9 @@ public class Menu {
     MouseOverRectangle morTest = new MouseOverRectangle(50, 50, 100, 100);
     private PollableEvents[] checkList = new PollableEvents[4];
     private Texture testTexture;
-    private int lastKey;
+    private int follow_x = 0;
+    private int follow_y = 0;
+    private Font font;
 
     public Menu() {
         try {
@@ -33,6 +39,8 @@ public class Menu {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        java.awt.Font AWTFont = new java.awt.Font("Times New Roman", java.awt.Font.BOLD, 24);
+        font = new TrueTypeFont(AWTFont, true);
     }
 
     public boolean show() {
@@ -43,9 +51,20 @@ public class Menu {
 
     void init() {
         glEnable(GL_TEXTURE_2D);
-        setCamera();
+        glShadeModel(GL_SMOOTH);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_LIGHTING);
+        glClearDepth(1);
         checkList[0] = morTest;
         Keyboard.enableRepeatEvents(true);
+
+        //glViewport(0,0,WIDTH,HEIGHT);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, WIDTH, HEIGHT, 0, 1, -1);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
     }
 
     void loop() {
@@ -67,11 +86,10 @@ public class Menu {
             now = System.currentTimeMillis();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            draw();
+            render();
             poll();
 
             Display.update();
-            //Display.sync(60);
             diff = System.currentTimeMillis() - now;
             if (diff < diff_target) {
                 try {
@@ -87,10 +105,7 @@ public class Menu {
 
     void pause() {
         /* Goes into the pause-loop */
-        long now;
         long tick = 0;
-        long diff;
-        long diff_target = 30; // Used to decide target fps
 
         while (true) {
             if (unpauseFlag) {
@@ -100,39 +115,48 @@ public class Menu {
                 exitFlag = true;
                 break;
             }
-            now = System.currentTimeMillis();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            draw();
+            render();
             pauseDraw();
             pausePoll();
 
             Display.update();
-            diff = System.currentTimeMillis() - now;
-            if (diff < diff_target) {
-                try {
-                    Thread.sleep(1+(diff_target-diff));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            debug("pause_tick=%d, diff=%d, diff_target=%d", tick, diff, diff_target);
+            Display.sync(30);
+            debug("pause_tick=%d", tick);
             tick++;
         }
     }
 
-    void draw() {
+    void render() {
         glColor3d(1.0, 0, 0);
-        drawRectangle(5, 5, 50, 50);
+        drawRectangle(follow_x, follow_y, follow_x+6, follow_y+6);
+        drawLine(follow_x, follow_y);
         glColor3d(0, 1, 0);
-        glRectf(50, 50, 250, 250);
+        glRectf(25, 75, 25+225, 25+225);
         glColor3d(0, 0, 1);
         drawRectangle(testRectangle);
         glColor3d(0.5, 0.5, 0.5);
         drawRectangle(morTest.area);
 
-        final float posmod = 296;
-        drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
+        //Color.white.bind();
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        font.drawString(450f, 300f, "Press S to start", Color.black);
+        font.drawString(450f, 350f, String.format("(%d, %d)", Mouse.getX(), HEIGHT-Mouse.getY()), Color.black);
+        font.drawString(450f, 375f, String.format("(%d, %d)", Mouse.getX(), Mouse.getY()), Color.black);
+        font.drawString(25f, 450f, "Hold numpad 1-3 for debug", Color.black);
+        glDisable(GL_BLEND);
+
+        //final float posmod = 296;
+        //drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
+    }
+
+    void drawLine(float x, float y) {
+        glBegin(GL_LINES);
+        glVertex2f(0f, 0f);
+        glVertex2f(x, y);
+        glEnd();
     }
 
     void pauseDraw() {
@@ -190,36 +214,22 @@ public class Menu {
     }
 
     void poll() {
-        int movementIncrement = 10;
-
-        if (Mouse.isButtonDown(0)) {
-            endMenuFlag = true;
-        }
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-            if (testRectangle.getY() > 0) {
-                testRectangle.translate(0, -movementIncrement);
-            }
-        }
-        if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-            if (testRectangle.getY() < 480-testRectangle.getHeight()) {
-                testRectangle.translate(0, movementIncrement);
-            }
-        }
-        if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-            if (testRectangle.getX() < 640 - testRectangle.getWidth()) {
-                testRectangle.translate(movementIncrement, 0);
-            }
-        }
-        if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-            if (testRectangle.getX() > 0) {
-                testRectangle.translate(-movementIncrement, 0);
-            }
-        }
-
-        for (PollableEvents pe: checkList) {
-            if (pe != null) {
-                pe.check();
+        while (Mouse.next()) {
+            int mouseEvent = Mouse.getEventButton();
+            switch (mouseEvent) {
+                case (-1): {
+                    follow_x = Mouse.getX();
+                    follow_y = HEIGHT-Mouse.getY();
+                    break;
+                }
+                case (0): {
+                    testRectangle.setX(Mouse.getEventX()-(testRectangle.getWidth()/2));
+                    testRectangle.setY(HEIGHT-(Mouse.getEventY()+(testRectangle.getHeight()/2)));
+                    break;
+                }
+                default: {
+                    System.out.printf("mouseEvent=%d\n", mouseEvent);
+                }
             }
         }
 
@@ -237,11 +247,21 @@ public class Menu {
                         exitFlag = true;
                         break;
                     }
+                    case (Keyboard.KEY_S): {
+                        endMenuFlag = true;
+                        break;
+                    }
                 }
             }
             eventCtr++;
         }
         debug("poll() eventCtr=%d", eventCtr);
+
+        for (PollableEvents pe: checkList) {
+            if (pe != null) {
+                pe.check();
+            }
+        }
     }
 
     static void debug(String format, Object... objs) {
@@ -260,15 +280,6 @@ public class Menu {
         if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
             System.out.printf(format + "\n", objs);
         }
-    }
-
-    void setCamera(){
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, 640, 0, 480, 1, -1);
-
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
     }
 }
 
@@ -292,14 +303,13 @@ class MouseOverRectangle implements PollableEvents {
     }
 
     public void check() {
-        Point position = new Point(Mouse.getX(), Mouse.getY());
-        Menu.debug2(position.toString());
+        Point position = new Point(Mouse.getX(), Menu.HEIGHT-Mouse.getY());
         if (area.contains(position)) {
+            Menu.debug3("MouseOverRectangle hit, pos=%s", position.toString());
             action();
         }
     }
 
     public void action() {
-        System.out.println("MouseOverRectangle hit");
     }
 }

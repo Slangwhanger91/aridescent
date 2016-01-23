@@ -269,6 +269,7 @@ public class Test3D {
             }
             eventCtr++;
         }
+        /* FIXME: Move this part later */
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glFrustum(left, right, bottom, top, zNear, zFar);
