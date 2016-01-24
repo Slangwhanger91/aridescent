@@ -9,8 +9,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class GameWindow {
 	
 	private Player player;
-	private boolean exitFlag = false;
-	
+
 	public static void main(String[] args) throws Exception {
 		try {
 			new GameWindow().start();
@@ -29,11 +28,11 @@ public class GameWindow {
 
 		Menu testMenu = new Menu();
         /* Checks return value from menu to decide to start game or just exit program. */
-		exitFlag = testMenu.show();
+		testMenu.show();
 
 		setCamera();
 
-		while(!Display.isCloseRequested() && !exitFlag){
+		while(!Display.isCloseRequested()){
 			// Clear screen to black every frame
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -69,9 +68,14 @@ public class GameWindow {
 		}
 		*/
         if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-			exitFlag = true;
+			exit();
         }
     }
+
+	void exit() {
+		Display.destroy();
+		System.exit(0);
+	}
 
 	void setCamera(){
 		// Modify projection Matrix

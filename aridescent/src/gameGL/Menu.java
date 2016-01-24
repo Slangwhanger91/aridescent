@@ -1,10 +1,10 @@
 package gameGL;
 
+import gameGL.constructs.Rectangle;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.Point;
-import org.lwjgl.util.Rectangle;
+import org.lwjgl.util.Renderable;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.TrueTypeFont;
@@ -13,27 +13,24 @@ import org.newdawn.slick.opengl.TextureImpl;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
-
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class Menu {
     final static int WIDTH = 640;
     final static int HEIGHT = 480;
-    private boolean endMenuFlag = false;
-    private boolean exitFlag = false;
-    private boolean unpauseFlag = false;
+    boolean unpauseFlag = false;
+    boolean endMenuFlag = false;
 
-    private Rectangle testRectangle = new Rectangle(10, 10, 50, 50);
-    MouseOverRectangle morTest = new MouseOverRectangle(50, 50, 100, 100);
-    private PollableEvents[] checkList = new PollableEvents[4];
+    Rectangle testRectangle = new Rectangle(10, 10, 50, 50);
+    Rectangle boxFollower = new Rectangle(0, 0, 6, 6);
     private Texture testTexture;
-    int mouseX;
-    int mouseY;
-    private Font font;
-    private int lastMouseEvent = -1;
-    private boolean drag = false;
+    Font font;
+    boolean drag = false;
+
+    ArrayList<Renderable> renderables = new ArrayList<>();
 
     public Menu() {
         try {
@@ -44,21 +41,32 @@ public class Menu {
         }
         java.awt.Font AWTFont = new java.awt.Font("Times New Roman", java.awt.Font.BOLD, 24);
         font = new TrueTypeFont(AWTFont, true);
+
+        renderables.add(testRectangle);
+        renderables.add(boxFollower);
+        //registerEventHandler(morTest);
     }
 
-    public boolean show() {
+    public void show() {
         init();
         loop();
-        return exitFlag;
+    }
+
+    public void end() {
+        endMenuFlag = true;
+    }
+
+    public void exit() {
+        Display.destroy();
+        System.exit(0);
     }
 
     void init() {
         glEnable(GL_TEXTURE_2D);
-        glShadeModel(GL_SMOOTH);
+        //glShadeModel(GL_SMOOTH);
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_LIGHTING);
         glClearDepth(1);
-        checkList[0] = morTest;
         Keyboard.enableRepeatEvents(true);
 
         //glViewport(0,0,WIDTH,HEIGHT);
@@ -81,13 +89,9 @@ public class Menu {
 
         glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
 
-        while (true) {
-            if (exitFlag || endMenuFlag) {
-                break;
-            } else if (Display.isCloseRequested()) {
-                /* Make sure we exit if [X] was pressed */
-                exitFlag = true;
-                break;
+        while (!endMenuFlag) {
+            if (Display.isCloseRequested()) {
+                exit();
             }
             now = System.currentTimeMillis();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -105,12 +109,13 @@ public class Menu {
                     e.printStackTrace();
                 }
             }
-            debug("tick=%d, diff=%d, diff_target=%d", tick, diff, diff_target);
+            util.debug("tick=%d, diff=%d, diff_target=%d", tick, diff, diff_target);
             tick++;
         }
     }
 
     void pause() {
+        unpauseFlag = false;
         /* Goes into the pause-loop */
         long tick = 0;
 
@@ -119,8 +124,7 @@ public class Menu {
                 break;
             } else if (Display.isCloseRequested()) {
                 /* Make sure we exit if [X] was pressed */
-                exitFlag = true;
-                break;
+                exit();
             }
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -130,32 +134,34 @@ public class Menu {
 
             Display.update();
             Display.sync(30);
-            debug("pause_tick=%d", tick);
+            util.debug("pause_tick=%d", tick);
             tick++;
         }
     }
 
     void logic() {
+        boxFollower.move(Mouse.getEventX(), HEIGHT-Mouse.getEventY());
         if (drag) {
-            testRectangle.setX(Mouse.getEventX() - (testRectangle.getWidth() / 2));
-            testRectangle.setY(HEIGHT - (Mouse.getEventY() + (testRectangle.getHeight() / 2)));
+            testRectangle.move(Mouse.getEventX(),HEIGHT-Mouse.getEventY());
         }
     }
 
     void render() {
+        for (Renderable r: renderables) {
+            r.render();
+        }
         glColor3d(1.0, 0, 0);
-        drawRectangle(mouseX, HEIGHT-mouseY, mouseX+6, (HEIGHT-mouseY)+6);
-        drawLine(mouseX, HEIGHT-mouseY);
+        drawLine(Mouse.getX(), HEIGHT-Mouse.getY());
         glColor3d(0, 1, 0);
-        glRectf(25, 75, 25+225, 25+225);
+        //glRectf(25, 75, 25+225, 25+225);
         glColor3d(0.5, 0.5, 0.5);
-        drawRectangle(morTest.area);
+        //drawRectangle(morTest.area);
 
         //Color.white.bind();
         font.drawString(450f, 300f, "S » Start", Color.black);
         font.drawString(450f, 324f, "P » Pause", Color.black);
-        font.drawString(450f, 350f, String.format("(%d, %d)", mouseX, HEIGHT-mouseY), Color.black);
-        font.drawString(450f, 375f, String.format("(%d, %d)", mouseX, mouseY), Color.black);
+        font.drawString(450f, 350f, String.format("(%d, %d)", Mouse.getX(), HEIGHT-Mouse.getY()), Color.black);
+        font.drawString(450f, 375f, String.format("(%d, %d)", Mouse.getX(), Mouse.getY()), Color.black);
         font.drawString(25f, 450f, "Hold numpad 1-3 for debug", Color.black);
         //glDisable(GL_BLEND);
 
@@ -241,8 +247,7 @@ public class Menu {
                         break;
                     }
                     case (Keyboard.KEY_ESCAPE): {
-                        exitFlag = true;
-                        unpauseFlag = true;
+                        exit();
                         break;
                     }
                 }
@@ -256,8 +261,6 @@ public class Menu {
             switch (mouseEvent) {
                 case (-1): {
                     /* Handles position events */
-                    mouseX = Mouse.getX();
-                    mouseY = Mouse.getY();
                     break;
                 }
                 default: {
@@ -271,7 +274,7 @@ public class Menu {
                                 break;
                             }
                         }
-                        debug2("mouseEvent=%d state=down\n", mouseEvent);
+                        util.debug2("mouseEvent=%d state=down\n", mouseEvent);
                     } else {
                         /* Up state */
                         switch (mouseEvent) {
@@ -280,7 +283,7 @@ public class Menu {
                                 break;
                             }
                         }
-                        debug2("mouseEvent=%d state=up\n", mouseEvent);
+                        util.debug2("mouseEvent=%d state=up\n", mouseEvent);
                     }
                     break;
                 }
@@ -293,76 +296,22 @@ public class Menu {
             if (Keyboard.getEventKeyState()) {
                 switch (event) {
                     case (Keyboard.KEY_P): {
-                        unpauseFlag = false;
                         pause();
                         break;
                     }
                     case (Keyboard.KEY_ESCAPE): {
-                        exitFlag = true;
+                        exit();
                         break;
                     }
                     case (Keyboard.KEY_S): {
-                        endMenuFlag = true;
+                        end();
                         break;
                     }
                 }
             }
             eventCtr++;
         }
-        debug("poll() eventCtr=%d", eventCtr);
-
-        for (PollableEvents pe: checkList) {
-            if (pe != null) {
-                pe.check();
-            }
-        }
-    }
-
-    static void debug(String format, Object... objs) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
-            System.out.printf(format + "\n", objs);
-        }
-    }
-
-    static void debug2(String format, Object... objs) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD2)) {
-            System.out.printf(format + "\n", objs);
-        }
-    }
-
-    static void debug3(String format, Object... objs) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
-            System.out.printf(format + "\n", objs);
-        }
+        util.debug("poll() eventCtr=%d", eventCtr);
     }
 }
 
-interface PollableEvents {
-    /* Messy start on an events interface */
-    void check();
-    void action();
-}
-
-class MouseOverRectangle implements PollableEvents {
-    /* Messy example of mouseover area class */
-    Rectangle area;
-
-    public MouseOverRectangle(Rectangle rect) {
-        this.area = rect;
-    }
-
-    public MouseOverRectangle(int xp, int yp, int w, int h) {
-        this.area = new Rectangle(xp, yp, w, h);
-    }
-
-    public void check() {
-        Point position = new Point(Mouse.getX(), Menu.HEIGHT-Mouse.getY());
-        if (area.contains(position)) {
-            Menu.debug3("MouseOverRectangle hit, pos=%s", position.toString());
-            action();
-        }
-    }
-
-    public void action() {
-    }
-}
