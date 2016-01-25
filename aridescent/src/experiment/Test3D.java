@@ -30,8 +30,8 @@ public class Test3D extends Thread {
     Float glTranslatef_x = 1f;
     Float glTranslatef_y = 0f;
     Float glTranslatef_z = -4f;
-    Float gluLookAt_eyex = -5f;
-    Float gluLookAt_eyey = 10f;
+    Float gluLookAt_eyex = -10f;
+    Float gluLookAt_eyey = 5f;
     Float gluLookAt_eyez = 0f;
     Float gluLookAt_centerx = 0f;
     Float gluLookAt_centery = 0f;
@@ -122,7 +122,7 @@ public class Test3D extends Thread {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
+        glDepthFunc(GL_LESS);
         glShadeModel(GL_SMOOTH);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
@@ -145,6 +145,21 @@ public class Test3D extends Thread {
         }
     }
 
+    void draw_test() {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        //gluPerspective(0f, 800f / 600f, 1f, 11f);
+        gluPerspective(gluPerspective_fovy, gluPerspective_aspect, gluPerspective_zNear, gluPerspective_zFar);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        gluLookAt(gluLookAt_eyex, gluLookAt_eyey, gluLookAt_eyez,
+                gluLookAt_centerx, gluLookAt_centery, gluLookAt_centerz,
+                gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
+        glTranslatef(1f, 1f, -4f);
+        glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
+
+    }
+
     void draw() {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -155,9 +170,12 @@ public class Test3D extends Thread {
                 gluLookAt_centerx, gluLookAt_centery, gluLookAt_centerz,
                 gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
         glPushMatrix();
-        glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
+
         glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
+        glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
+        drawPyramid();
         drawCube();
+
         glPopMatrix();
         glTranslatef(2f, 0f, -4f);
         glRotatef(89f, 1f, 0f, 0f);
@@ -177,6 +195,46 @@ public class Test3D extends Thread {
     }
 
     void drawCube() {
+        glBegin(GL_POLYGON);
+        glColor3f(1f, 0f, 0f);
+        glVertex3f(0f, 0f, 0f);
+        glVertex3f(0f, 0.5f, 0f);
+        glVertex3f(0.5f, 0.5f, 0f);
+        glVertex3f(0.5f, 0f, 0f);
+
+        glColor3f(0f, 1f, 0f);
+        glVertex3f(0f, 0f, 0.5f);
+        glVertex3f(0f, 0.5f, 0.5f);
+        glVertex3f(0.5f, 0.5f, 0.5f);
+        glVertex3f(0.5f, 0f, 0.5f);
+
+        glColor3f(0f, 0f, 1f);
+        glVertex3f(0f, 0f, 0f);
+        glVertex3f(0f, 0f, 0.5f);
+        glVertex3f(0.5f, 0f, 0.5f);
+        glVertex3f(0.5f, 0f, 0f);
+
+        glColor3f(0f, 1f, 1f);
+        glVertex3f(0f, 0.5f, 0f);
+        glVertex3f(0f, 0.5f, 0.5f);
+        glVertex3f(0.5f, 0.5f, 0.5f);
+        glVertex3f(0.5f, 0.5f, 0f);
+
+        glColor3f(1f, 0f, 1f);
+        glVertex3f(0f, 0f, 0f);
+        glVertex3f(0f, 0f, 0.5f);
+        glVertex3f(0f, 0.5f, 0.5f);
+        glVertex3f(0f, 0.5f, 0f);
+
+        glColor3f(0f, 1f, 1f);
+        glVertex3f(0.5f, 0f, 0f);
+        glVertex3f(0.5f, 0f, 0.5f);
+        glVertex3f(0.5f, 0.5f, 0.5f);
+        glVertex3f(0.5f, 0.5f, 0f);
+        glEnd();
+    }
+
+    void drawPyramid() {
         glBegin(GL_TRIANGLES);
         glColor3f(1f, 0, 0);
         glVertex3d(0f, 1f, 0f);
