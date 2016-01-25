@@ -41,13 +41,12 @@ public class Menu {
 
         renderables.add(new Text("S » Start", "Arial", 24, java.awt.Font.PLAIN, 450, 300));
         renderables.add(new Text("P » Pause", "Arial", 24, java.awt.Font.PLAIN, 450, 324));
-        coords1 = new Text("tbd", "Arial", 24, java.awt.Font.PLAIN, 450, 350);
+        coords1 = new Text("", 24, java.awt.Font.PLAIN, 450, 350);
         renderables.add(coords1);
-        coords2 = new Text("tbd", "Arial", 24, java.awt.Font.PLAIN, 450, 375);
+        coords2 = new Text("", 24, java.awt.Font.PLAIN, 450, 375);
         renderables.add(coords2);
         renderables.add(new Text("Hold numpad 1-3 for debug", "Arial", 24,
                 java.awt.Font.PLAIN, 25, 450));
-        //registerEventHandler(morTest);
     }
 
     public void show() {
@@ -57,6 +56,7 @@ public class Menu {
 
     public void end() {
         endMenuFlag = true;
+        glDisable(GL_BLEND);
     }
 
     public void exit() {
@@ -158,7 +158,6 @@ public class Menu {
         }
 
         //Color.white.bind();
-        //glDisable(GL_BLEND);
     }
 
 

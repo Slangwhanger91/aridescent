@@ -27,6 +27,11 @@ public class Text implements Renderable {
         this(text, fontName, fontSize, fontFace, xpos, ypos, Color.black);
     }
 
+    public Text(String text, int fontSize, int fontFace,
+                int xpos, int ypos) {
+        this(text, "Arial", fontSize, fontFace, xpos, ypos, Color.black);
+    }
+
     public void setText(String text) {
         this.text = text;
     }
