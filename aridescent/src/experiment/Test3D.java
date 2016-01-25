@@ -210,6 +210,9 @@ public class Test3D extends Thread {
                     glRotatef_angle += incX;
                     if (Mouse.isButtonDown(0)) {
                         gluPerspective_fovy += Mouse.getEventDY();
+                    } else if (Mouse.isButtonDown(1)) {
+                        gluLookAt_centerx += Mouse.getEventDX();
+                        gluLookAt_centerz += Mouse.getEventDY();
                     }
                     debug3("glRotatef_angle=%f", glRotatef_angle);
                     break;
