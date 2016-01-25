@@ -5,7 +5,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -23,11 +25,12 @@ public class SliderWindow extends Application {
 
         VBox vbox = new VBox();
         TabPane tabs = new TabPane();
+        tabs.prefWidthProperty().bind(vbox.widthProperty());
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         vbox.getChildren().add(tabs);
 
         /* Tab pages */
-        String title = "gluPerspective()";
+        String title = "gluPerspective";
         String[] labels = { "gluPerspective_fovy", "gluPerspective_aspect",
                 "gluPerspective_zNear", "gluPerspective_zFar", };
         Float[][] floats = {
@@ -62,6 +65,31 @@ public class SliderWindow extends Application {
         };
         makeTabPage(tabs, title3, labels3, floats3);
 
+        String title4 = "gluLookAt";
+        String[] labels4 = {
+                "gluLookAt_eyex",
+                "gluLookAt_eyey",
+                "gluLookAt_eyez",
+                "gluLookAt_centerx",
+                "gluLookAt_centery",
+                "gluLookAt_centerz",
+                "gluLookAt_upx",
+                "gluLookAt_upy",
+                "gluLookAt_upz",
+        };
+        Float[][] floats4 = {
+                {-100f, 800f, model.gluLookAt_eyex},
+                {-100f, 600f, model.gluLookAt_eyey},
+                {-60f, 60f, model.gluLookAt_eyez},
+                {-100f, 800f, model.gluLookAt_centerx},
+                {-100f, 600f, model.gluLookAt_centery},
+                {-60f, 60f, model.gluLookAt_centerz},
+                {0f, 1f, model.gluLookAt_upx},
+                {0f, 1f, model.gluLookAt_upy},
+                {0f, 1f, model.gluLookAt_upz},
+        };
+        makeTabPage(tabs, title4, labels4, floats4);
+
         /* Button menu */
         VBox menu = new VBox();
         menu.setPadding(new Insets(0, 10, 0, 0));
@@ -71,7 +99,7 @@ public class SliderWindow extends Application {
         menu.getChildren().addAll(applyButton);
         vbox.getChildren().add(menu);
 
-        Scene scene = new Scene(vbox, 640, 480);
+        Scene scene = new Scene(vbox, 1024, 268);
         primaryStage.setTitle("sliderwindow");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -80,6 +108,7 @@ public class SliderWindow extends Application {
     void makeTabPage(TabPane tabs, String title, String[] labels, Float[][] floats) {
         Tab tab = new Tab(title);
         GridPane grid = new GridPane();
+        grid.prefWidthProperty().bind(tabs.widthProperty());
         grid.setVgap(10);
         grid.setHgap(10);
         grid.setPadding(new Insets(10, 10, 10, 10));
@@ -92,7 +121,7 @@ public class SliderWindow extends Application {
             Label lbl = new Label(labels[i]);
             Slider slider = new Slider(floats[i][0], floats[i][1], floats[i][2]);
             slider.setSnapToTicks(true);
-            //slider.setMinorTickCount(0);
+            slider.setMinorTickCount(1000);
             slider.setMajorTickUnit(0.1);
             Label value = new Label(Double.toString(slider.getValue()));
 
@@ -101,12 +130,21 @@ public class SliderWindow extends Application {
                 model.config.replace(key, newValue.floatValue());
             });
 
+
+            ColumnConstraints column1 = new ColumnConstraints(120);
+            ColumnConstraints column2 = new ColumnConstraints(760);
+            column2.setHgrow(Priority.ALWAYS);
+            column2.setFillWidth(true);
+            ColumnConstraints column3 = new ColumnConstraints(120);
+            slider.prefWidthProperty().bind(grid.widthProperty());
+
             GridPane.setConstraints(lbl, 0, i);
             grid.getChildren().add(lbl);
             GridPane.setConstraints(slider, 1, i);
             grid.getChildren().add(slider);
             GridPane.setConstraints(value, 2, i);
             grid.getChildren().add(value);
+            grid.getColumnConstraints().addAll(column1, column2, column3);
         }
     }
 }

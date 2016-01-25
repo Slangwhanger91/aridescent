@@ -14,6 +14,7 @@ import static gameGL.util.debug;
 import static gameGL.util.debug2;
 import static gameGL.util.debug3;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.util.glu.GLU.gluLookAt;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class Test3D extends Thread {
@@ -29,6 +30,15 @@ public class Test3D extends Thread {
     Float glTranslatef_x = 1f;
     Float glTranslatef_y = 0f;
     Float glTranslatef_z = -4f;
+    Float gluLookAt_eyex = -5f;
+    Float gluLookAt_eyey = 10f;
+    Float gluLookAt_eyez = 0f;
+    Float gluLookAt_centerx = 0f;
+    Float gluLookAt_centery = 0f;
+    Float gluLookAt_centerz = 0f;
+    Float gluLookAt_upx = 1f;
+    Float gluLookAt_upy = 0f;
+    Float gluLookAt_upz = 0f;
 
     @Override
     public synchronized void run() {
@@ -60,6 +70,15 @@ public class Test3D extends Thread {
         config.put("glTranslatef_x", glTranslatef_x);
         config.put("glTranslatef_y", glTranslatef_y);
         config.put("glTranslatef_z", glTranslatef_z);
+        config.put("gluLookAt_eyex", gluLookAt_eyex);
+        config.put("gluLookAt_eyey", gluLookAt_eyey);
+        config.put("gluLookAt_eyez", gluLookAt_eyez);
+        config.put("gluLookAt_centerx", gluLookAt_centerx);
+        config.put("gluLookAt_centery", gluLookAt_centery);
+        config.put("gluLookAt_centerz", gluLookAt_centerz);
+        config.put("gluLookAt_upx", gluLookAt_upx);
+        config.put("gluLookAt_upy", gluLookAt_upy);
+        config.put("gluLookAt_upz", gluLookAt_upz);
         updateConfig();
     }
 
@@ -75,6 +94,15 @@ public class Test3D extends Thread {
         glTranslatef_x = config.get("glTranslatef_x");
         glTranslatef_y = config.get("glTranslatef_y");
         glTranslatef_z = config.get("glTranslatef_z");
+        gluLookAt_eyex = config.get("gluLookAt_eyex");
+        gluLookAt_eyey = config.get("gluLookAt_eyey");
+        gluLookAt_eyez = config.get("gluLookAt_eyez");
+        gluLookAt_centerx = config.get("gluLookAt_centerx");
+        gluLookAt_centery = config.get("gluLookAt_centery");
+        gluLookAt_centerz = config.get("gluLookAt_centerz");
+        gluLookAt_upx = config.get("gluLookAt_upx");
+        gluLookAt_upy = config.get("gluLookAt_upy");
+        gluLookAt_upz = config.get("gluLookAt_upz");
     }
 
     public void exit() {
@@ -123,6 +151,9 @@ public class Test3D extends Thread {
         gluPerspective(gluPerspective_fovy, gluPerspective_aspect, gluPerspective_zNear, gluPerspective_zFar);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+        gluLookAt(gluLookAt_eyex, gluLookAt_eyey, gluLookAt_eyez,
+                gluLookAt_centerx, gluLookAt_centery, gluLookAt_centerz,
+                gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
         glPushMatrix();
         glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
         glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
