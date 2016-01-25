@@ -2,15 +2,19 @@ package experiment;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.Rectangle;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 
-import static org.lwjgl.opengl.GL11.*;
+import java.util.HashMap;
 
-public class Test3D {
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.util.glu.GLU.gluPerspective;
+
+public class Test3D extends Thread {
     private boolean exitFlag = false;
 
     float left = -1f;
@@ -25,35 +29,67 @@ public class Test3D {
     float y = 0f;
     float z = -4f;
 
-    //private Texture testTexture;
-    public static void main(String[] args) {
+    HashMap<String, Float> config = new HashMap<>();
+    Float gluPerspective_fovy = 120f;
+    Float gluPerspective_aspect = 800f/600f;
+    Float gluPerspective_zNear = 1f;
+    Float gluPerspective_zFar = 30f;
+    Float glRotatef_angle = 0f;
+    Float glRotatef_x = 0f;
+    Float glRotatef_y = 1f;
+    Float glRotatef_z = 0f;
+
+    @Override
+    public synchronized void run() {
         try {
-            Test3D m3d = new Test3D();
-            m3d.show();
+            Display.setDisplayMode(new DisplayMode(800, 600));
+            Display.create();
+            show();
         } catch (LWJGLException e) {
             e.printStackTrace();
         }
     }
 
-    public Test3D() throws LWJGLException {
-        Display.setDisplayMode(new DisplayMode(800, 600));
-        Display.create();
-        exitFlag = false;
-    }
-
-    public boolean show() {
+    public void show() {
         System.out.println("Test3D show()");
-        init();
+        initConfig();
+        initGL();
         loop();
-        Display.destroy();
-        return exitFlag;
     }
 
-    void init() {
-        glViewport(0, 0, 800, 600);
+    void initConfig() {
+        config.put("gluPerspective_fovy", gluPerspective_fovy);
+        config.put("gluPerspective_aspect", gluPerspective_aspect);
+        config.put("gluPerspective_zNear", gluPerspective_zNear);
+        config.put("gluPerspective_zFar", gluPerspective_zFar);
+        config.put("glRotatef_angle", glRotatef_angle);
+        config.put("glRotatef_x", glRotatef_x);
+        config.put("glRotatef_y", glRotatef_y);
+        config.put("glRotatef_z", glRotatef_z);
+        updateConfig();
+    }
+
+    void updateConfig() {
+        gluPerspective_fovy = config.get("gluPerspective_fovy");
+        gluPerspective_aspect = config.get("gluPerspective_aspect");
+        gluPerspective_zNear = config.get("gluPerspective_zNear");
+        gluPerspective_zFar = config.get("gluPerspective_zFar");
+        glRotatef_angle = config.get("glRotatef_angle");
+        glRotatef_x = config.get("glRotatef_x");
+        glRotatef_y = config.get("glRotatef_y");
+        glRotatef_z = config.get("glRotatef_z");
+    }
+
+    public void exit() {
+        Display.destroy();
+        System.exit(0);
+    }
+
+    void initGL() {
+        //glViewport(0, 0, 800, 600);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glFrustum(-1f, 1f, -1f, 1f, 1f, 10f);
+        //glFrustum(-1f, 1f, -1f, 1f, 1f, 10f);
         //glOrtho(0, 640, 0, 480, 1, -1);
 
         //glMatrixMode(GL_MODELVIEW);
@@ -71,14 +107,7 @@ public class Test3D {
     void loop() {
         long tick = 0;
 
-        while (true) {
-            if (exitFlag) {
-                break;
-            } else if (Display.isCloseRequested()) {
-                /* Make sure we exit if [X] was pressed */
-                exitFlag = true;
-                break;
-            }
+        while (!Display.isCloseRequested()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             draw();
@@ -92,9 +121,13 @@ public class Test3D {
     }
 
     void draw() {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluPerspective(gluPerspective_fovy, gluPerspective_aspect, gluPerspective_zNear, gluPerspective_zFar);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glTranslatef(x, y, z);
+        glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
 
         glBegin(GL_TRIANGLES);
         glColor3f(1f, 0, 0);
@@ -119,154 +152,37 @@ public class Test3D {
         glEnd();
     }
 
-    void drawTexture(Texture tex, float x1, float y1, float x2, float y2) {
-        Color.white.bind();
-        glBindTexture(GL_TEXTURE_2D, tex.getTextureID());
-
-        glBegin(GL_POLYGON);
-        glTexCoord2f(0, tex.getHeight());
-        glVertex2d(x1, y1);
-        glTexCoord2f(0, 0);
-        glVertex2d(x1, y2);
-        glTexCoord2f(tex.getWidth(), 0);
-        glVertex2d(x2, y2);
-        glTexCoord2f(tex.getWidth(), tex.getHeight());
-        glVertex2d(x2, y1);
-        glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
-    void drawRectangle(int x1, int y1, int x2, int y2) {
-        /* Equivalent with glRectf(x1,y1,x2,y2) */
-        glBegin(GL_POLYGON);
-        glVertex2d(x1, y1);
-        glVertex2d(x2, y1);
-        glVertex2d(x2, y2);
-        glVertex2d(x1, y2);
-        glEnd();
-    }
-
-    void drawRectangle(Rectangle rect) {
-        glRectf(rect.getX(), rect.getY(), rect.getX()+rect.getWidth(), rect.getY()+rect.getHeight());
-    }
-
     void poll() {
-
         int eventCtr = 0;
+        while (Mouse.next()) {
+            int event = Mouse.getEventButton();
+            switch(event) {
+                case (-1): {
+                    float inc = Mouse.getEventDX() / 3;
+                    glRotatef_angle += inc;
+                    break;
+                }
+                default: {
+                    /* Click */
+                    debug2("clicked mbutton=%d", event);
+                    break;
+                }
+            }
+            eventCtr++;
+        }
+
         while (Keyboard.next()) {
             int event = Keyboard.getEventKey();
             if (Keyboard.getEventKeyState()) {
                 switch (event) {
                     case (Keyboard.KEY_ESCAPE): {
-                        exitFlag = true;
-                        break;
-                    }
-                    case (Keyboard.KEY_A): {
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            left += 0.1f;
-                        } else {
-                            left -= 0.1f;
-                        }
-                        break;
-                    }
-                    case (Keyboard.KEY_W): {
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            top += 0.1f;
-                        } else {
-                            top -= 0.1f;
-                        }
-                        break;
-                    }
-                    case (Keyboard.KEY_S): {
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            bottom += 0.1f;
-                        } else {
-                            bottom -= 0.1f;
-                        }
-                        break;
-                    }
-                    case (Keyboard.KEY_D): {
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            right += 0.1f;
-                        } else {
-                            right -= 0.1f;
-                        }
-                        break;
-                    }
-                    case (Keyboard.KEY_Z): {
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            zNear += 0.1f;
-                        } else {
-                            zNear -= 0.1f;
-                        }
-                        break;
-                    }
-                    case (Keyboard.KEY_F): {
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            zFar += 0.1f;
-                        } else {
-                            zFar -= 0.1f;
-                        }
-                        break;
-                    }
-                    case (Keyboard.KEY_R): {
-                        left = -1f;
-                        right = 1f;
-                        bottom = -1f;
-                        top = 1f;
-                        zNear = 1f;
-                        zFar = 10f;
-                        break;
-                    }
-                    case (Keyboard.KEY_U): {
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            x += 0.1f;
-                        } else {
-                            x -= 0.1f;
-                        }
-                        break;
-                    }
-                    case (Keyboard.KEY_I): {
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            y += 0.1f;
-                        } else {
-                            y -= 0.1f;
-                        }
-                        break;
-                    }
-                    case (Keyboard.KEY_O): {
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                            z += 0.1f;
-                        } else {
-                            z -= 0.1f;
-                        }
-                        break;
-                    }
-                    case (Keyboard.KEY_T): {
-                        System.out.printf("left=%f, right=%f, bottom=%f, top=%f, zNear=%f, zFar=%f\n",
-                                left, right, bottom, top, zNear, zFar);
-                        System.out.printf("repeat=%f\n", repeat);
-                        System.out.printf("x=%f, y=%f, z=%f\n", x, y, z);
-                        break;
-                    }
-                    case (Keyboard.KEY_L): {
-                        glMatrixMode(GL_MODELVIEW);
-                        //glLoadIdentity();
-                        //glTranslatef(0f, 0f, 0f);
-                        glRotatef(0f+repeat, 0f, 0f, 1f);
-                        //glTranslatef(-1.0f, 0.0f, -4.0f);
-                        repeat += 1f;
-                        debug2("repeat=%f", repeat);
+                        exit();
                         break;
                     }
                 }
             }
             eventCtr++;
         }
-        /* FIXME: Move this part later */
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glFrustum(left, right, bottom, top, zNear, zFar);
         debug("poll() eventCtr=%d", eventCtr);
     }
 
