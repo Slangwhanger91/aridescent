@@ -52,6 +52,7 @@ public class Menu {
     public void show() {
         init();
         loop();
+        endMenuFlag = false;
     }
 
     public void end() {
@@ -64,7 +65,6 @@ public class Menu {
     }
 
     void init() {
-        glEnable(GL_TEXTURE_2D);
         //glShadeModel(GL_SMOOTH);
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_LIGHTING);
@@ -74,7 +74,7 @@ public class Menu {
         //glViewport(0,0,WIDTH,HEIGHT);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(0, WIDTH, HEIGHT, 0, 1, -1);
+        glOrtho(0, WIDTH, HEIGHT, 1, 0, 1);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
