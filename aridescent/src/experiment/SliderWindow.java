@@ -49,6 +49,19 @@ public class SliderWindow extends Application {
         };
         makeTabPage(tabs, title2, labels2, floats2);
 
+        String title3 = "glTranslatef";
+        String[] labels3 = {
+                "glTranslatef_x",
+                "glTranslatef_y",
+                "glTranslatef_z",
+        };
+        Float[][] floats3 = {
+                {0f, 100f, model.glTranslatef_x},
+                {0f, 100f, model.glTranslatef_y},
+                {-100f, 100f, model.glTranslatef_z},
+        };
+        makeTabPage(tabs, title3, labels3, floats3);
+
         /* Button menu */
         VBox menu = new VBox();
         menu.setPadding(new Insets(0, 10, 0, 0));

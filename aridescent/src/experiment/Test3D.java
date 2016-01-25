@@ -11,24 +11,13 @@ import org.newdawn.slick.opengl.Texture;
 
 import java.util.HashMap;
 
+import static gameGL.util.debug;
+import static gameGL.util.debug2;
+import static gameGL.util.debug3;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class Test3D extends Thread {
-    private boolean exitFlag = false;
-
-    float left = -1f;
-    float right = 1f;
-    float bottom = -1f;
-    float top = 1f;
-    float zNear = 1f;
-    float zFar = 10f;
-    float repeat = 0f;
-
-    float x = 1f;
-    float y = 0f;
-    float z = -4f;
-
     HashMap<String, Float> config = new HashMap<>();
     Float gluPerspective_fovy = 120f;
     Float gluPerspective_aspect = 800f/600f;
@@ -38,6 +27,9 @@ public class Test3D extends Thread {
     Float glRotatef_x = 0f;
     Float glRotatef_y = 1f;
     Float glRotatef_z = 0f;
+    Float glTranslatef_x = 1f;
+    Float glTranslatef_y = 0f;
+    Float glTranslatef_z = -4f;
 
     @Override
     public synchronized void run() {
@@ -66,6 +58,9 @@ public class Test3D extends Thread {
         config.put("glRotatef_x", glRotatef_x);
         config.put("glRotatef_y", glRotatef_y);
         config.put("glRotatef_z", glRotatef_z);
+        config.put("glTranslatef_x", glTranslatef_x);
+        config.put("glTranslatef_y", glTranslatef_y);
+        config.put("glTranslatef_z", glTranslatef_z);
         updateConfig();
     }
 
@@ -78,6 +73,9 @@ public class Test3D extends Thread {
         glRotatef_x = config.get("glRotatef_x");
         glRotatef_y = config.get("glRotatef_y");
         glRotatef_z = config.get("glRotatef_z");
+        glTranslatef_x = config.get("glTranslatef_x");
+        glTranslatef_y = config.get("glTranslatef_y");
+        glTranslatef_z = config.get("glTranslatef_z");
     }
 
     public void exit() {
@@ -87,8 +85,8 @@ public class Test3D extends Thread {
 
     void initGL() {
         //glViewport(0, 0, 800, 600);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
+        //glMatrixMode(GL_PROJECTION);
+        //glLoadIdentity();
         //glFrustum(-1f, 1f, -1f, 1f, 1f, 10f);
         //glOrtho(0, 640, 0, 480, 1, -1);
 
@@ -126,7 +124,7 @@ public class Test3D extends Thread {
         gluPerspective(gluPerspective_fovy, gluPerspective_aspect, gluPerspective_zNear, gluPerspective_zFar);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        glTranslatef(x, y, z);
+        glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
         glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
 
         glBegin(GL_TRIANGLES);
@@ -158,8 +156,9 @@ public class Test3D extends Thread {
             int event = Mouse.getEventButton();
             switch(event) {
                 case (-1): {
-                    float inc = Mouse.getEventDX() / 3;
-                    glRotatef_angle += inc;
+                    float incX = Mouse.getEventDX() / 3;
+                    glRotatef_angle += incX;
+                    debug3("glRotatef_angle=%f", glRotatef_angle);
                     break;
                 }
                 default: {
@@ -184,23 +183,5 @@ public class Test3D extends Thread {
             eventCtr++;
         }
         debug("poll() eventCtr=%d", eventCtr);
-    }
-
-    static void debug(String format, Object... objs) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
-            System.out.printf(format + "\n", objs);
-        }
-    }
-
-    static void debug2(String format, Object... objs) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD2)) {
-            System.out.printf(format + "\n", objs);
-        }
-    }
-
-    static void debug3(String format, Object... objs) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD3)) {
-            System.out.printf(format + "\n", objs);
-        }
     }
 }
