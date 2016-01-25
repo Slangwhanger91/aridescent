@@ -1,19 +1,14 @@
 package gameGL;
 
+import gameGL.constructs.Image;
+import gameGL.constructs.Line;
 import gameGL.constructs.Rectangle;
+import gameGL.constructs.Text;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.Renderable;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.Font;
-import org.newdawn.slick.TrueTypeFont;
-import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureImpl;
-import org.newdawn.slick.opengl.TextureLoader;
-import org.newdawn.slick.util.ResourceLoader;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -23,27 +18,35 @@ public class Menu {
     final static int HEIGHT = 480;
     boolean unpauseFlag = false;
     boolean endMenuFlag = false;
-
-    Rectangle testRectangle = new Rectangle(10, 10, 50, 50);
-    Rectangle boxFollower = new Rectangle(0, 0, 6, 6);
-    private Texture testTexture;
-    Font font;
     boolean drag = false;
 
     ArrayList<Renderable> renderables = new ArrayList<>();
 
-    public Menu() {
-        try {
-            testTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("test_image.png"));
-            System.out.printf("testTexture: width=%d, height=%d\n", testTexture.getImageWidth(), testTexture.getImageHeight());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        java.awt.Font AWTFont = new java.awt.Font("Times New Roman", java.awt.Font.BOLD, 24);
-        font = new TrueTypeFont(AWTFont, true);
+    Rectangle testRectangle = new Rectangle(10, 10, 50, 50);
+    Rectangle boxFollower = new Rectangle(0, 0, 6, 6);
+    Line line = new Line(0,0,0,0);
+    Image imageTest;
+    Text coords1;
+    Text coords2;
 
+
+    public Menu() {
+
+        imageTest = new Image("test_image.PNG", 296, 296);
+
+        renderables.add(imageTest);
         renderables.add(testRectangle);
         renderables.add(boxFollower);
+        renderables.add(line);
+
+        renderables.add(new Text("S » Start", "Arial", 24, java.awt.Font.PLAIN, 450, 300));
+        renderables.add(new Text("P » Pause", "Arial", 24, java.awt.Font.PLAIN, 450, 324));
+        coords1 = new Text("tbd", "Arial", 24, java.awt.Font.PLAIN, 450, 350);
+        renderables.add(coords1);
+        coords2 = new Text("tbd", "Arial", 24, java.awt.Font.PLAIN, 450, 375);
+        renderables.add(coords2);
+        renderables.add(new Text("Hold numpad 1-3 for debug", "Arial", 24,
+                java.awt.Font.PLAIN, 25, 450));
         //registerEventHandler(morTest);
     }
 
@@ -140,7 +143,10 @@ public class Menu {
     }
 
     void logic() {
+        coords1.setText(String.format("(%d, %d)", Mouse.getX(), Mouse.getY()));
+        coords2.setText(String.format("(%d, %d)", Mouse.getX(), HEIGHT-Mouse.getY()));
         boxFollower.move(Mouse.getEventX(), HEIGHT-Mouse.getEventY());
+        line.setEndpoint(Mouse.getX(), HEIGHT-Mouse.getY());
         if (drag) {
             testRectangle.move(Mouse.getEventX(),HEIGHT-Mouse.getEventY());
         }
@@ -150,92 +156,15 @@ public class Menu {
         for (Renderable r: renderables) {
             r.render();
         }
-        glColor3d(1.0, 0, 0);
-        drawLine(Mouse.getX(), HEIGHT-Mouse.getY());
-        glColor3d(0, 1, 0);
-        //glRectf(25, 75, 25+225, 25+225);
-        glColor3d(0.5, 0.5, 0.5);
-        //drawRectangle(morTest.area);
 
         //Color.white.bind();
-        font.drawString(450f, 300f, "S » Start", Color.black);
-        font.drawString(450f, 324f, "P » Pause", Color.black);
-        font.drawString(450f, 350f, String.format("(%d, %d)", Mouse.getX(), HEIGHT-Mouse.getY()), Color.black);
-        font.drawString(450f, 375f, String.format("(%d, %d)", Mouse.getX(), Mouse.getY()), Color.black);
-        font.drawString(25f, 450f, "Hold numpad 1-3 for debug", Color.black);
         //glDisable(GL_BLEND);
-
-        final float posmod = 296;
-        drawTexture(testTexture, posmod, posmod, posmod+testTexture.getImageWidth(), posmod+testTexture.getImageHeight());
-
-        glColor4d(0, 0, 1, 0.5f);
-        drawRectangle(testRectangle);
     }
 
-    void drawLine(float x, float y) {
-        glBegin(GL_LINES);
-        glVertex2f(0f, 0f);
-        glVertex2f(x, y);
-        glEnd();
-    }
 
     void pauseDraw() {
     }
 
-
-    /* For when (0,0) is bottom-left
-    void drawTexture(Texture tex, float x1, float y1, float x2, float y2) {
-        Color.white.bind();
-        glBindTexture(GL_TEXTURE_2D, tex.getTextureID());
-
-        glBegin(GL_POLYGON);
-        glTexCoord2f(0, tex.getHeight());
-        glVertex2d(x1, y1);
-        glTexCoord2f(0, 0);
-        glVertex2d(x1, y2);
-        glTexCoord2f(tex.getWidth(), 0);
-        glVertex2d(x2, y2);
-        glTexCoord2f(tex.getWidth(), tex.getHeight());
-        glVertex2d(x2, y1);
-        glEnd();
-        glTexCoord2f(0, 0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-    */
-
-    /* For when (0,0) is top-left */
-    void drawTexture(Texture tex, float x1, float y1, float x2, float y2) {
-        Color.white.bind();
-        tex.bind();
-        //glBindTexture(GL_TEXTURE_2D, tex.getTextureID());
-
-        glBegin(GL_POLYGON);
-        glTexCoord2f(0, 0);
-        glVertex2d(x1, y1);
-        glTexCoord2f(0, tex.getHeight());
-        glVertex2d(x1, y2);
-        glTexCoord2f(tex.getWidth(), tex.getHeight());
-        glVertex2d(x2, y2);
-        glTexCoord2f(tex.getWidth(), 0);
-        glVertex2d(x2, y1);
-        glEnd();
-        //glBindTexture(GL_TEXTURE_2D, 0);
-        TextureImpl.bindNone();
-    }
-
-    void drawRectangle(int x1, int y1, int x2, int y2) {
-        /* Equivalent with glRectf(x1,y1,x2,y2) */
-        glBegin(GL_POLYGON);
-        glVertex2d(x1, y1);
-        glVertex2d(x2, y1);
-        glVertex2d(x2, y2);
-        glVertex2d(x1, y2);
-        glEnd();
-    }
-
-    void drawRectangle(Rectangle rect) {
-        glRectf(rect.getX(), rect.getY(), rect.getX()+rect.getWidth(), rect.getY()+rect.getHeight());
-    }
 
     void pausePoll() {
         while (Keyboard.next()) {
