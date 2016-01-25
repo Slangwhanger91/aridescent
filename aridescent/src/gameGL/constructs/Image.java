@@ -53,7 +53,7 @@ public class Image implements Renderable {
         glEnd();
     }
 
-    /* For when (0,0) is bottom-left
+    /* For when position (0,0) is bottom-left
     void drawTexture(Texture tex, float x1, float y1, float x2, float y2) {
         Color.white.bind();
         glBindTexture(GL_TEXTURE_2D, tex.getTextureID());

@@ -156,8 +156,6 @@ public class Menu {
         for (Renderable r: renderables) {
             r.render();
         }
-
-        //Color.white.bind();
     }
 
 
@@ -198,7 +196,6 @@ public class Menu {
                         switch (mouseEvent) {
                             case (0): {
                                 drag = true;
-                                /* FIXME: Replace drag boolean with register()/unregister() system? */
                                 break;
                             }
                         }
@@ -222,6 +219,7 @@ public class Menu {
         while (Keyboard.next()) {
             int event = Keyboard.getEventKey();
             if (Keyboard.getEventKeyState()) {
+                /* Pressed */
                 switch (event) {
                     case (Keyboard.KEY_P): {
                         pause();
@@ -236,10 +234,12 @@ public class Menu {
                         break;
                     }
                 }
+            } else {
+                /* Released */
+                util.debug("key_released=%d", event);
             }
             eventCtr++;
         }
         util.debug("poll() eventCtr=%d", eventCtr);
     }
 }
-
