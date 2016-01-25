@@ -56,7 +56,6 @@ public class Menu {
 
     public void end() {
         endMenuFlag = true;
-        glDisable(GL_BLEND);
     }
 
     public void exit() {

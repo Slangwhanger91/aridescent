@@ -4,6 +4,7 @@ import org.lwjgl.util.Renderable;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.opengl.TextureImpl;
 
 public class Text implements Renderable {
     int xpos, ypos;
@@ -39,5 +40,6 @@ public class Text implements Renderable {
     @Override
     public void render() {
         font.drawString(xpos, ypos, text, color);
+        TextureImpl.bindNone();
     }
 }
