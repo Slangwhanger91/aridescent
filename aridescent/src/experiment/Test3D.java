@@ -5,9 +5,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.util.Rectangle;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureImpl;
 
 import java.util.HashMap;
 
@@ -124,9 +123,29 @@ public class Test3D extends Thread {
         gluPerspective(gluPerspective_fovy, gluPerspective_aspect, gluPerspective_zNear, gluPerspective_zFar);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+        glPushMatrix();
         glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
         glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
+        drawCube();
+        glPopMatrix();
+        glTranslatef(2f, 0f, -4f);
+        glRotatef(89f, 1f, 0f, 0f);
+        drawPlane();
+    }
 
+    void drawPlane() {
+        Color.blue.bind();
+        glBegin(GL_POLYGON);
+        glVertex3f(0f, 0f, 0f);
+        glVertex3f(0f, 600f, 0f);
+        glVertex3f(800f, 600f, 0f);
+        glVertex3f(800f, 0f, 0f);
+        glEnd();
+        TextureImpl.unbind();
+
+    }
+
+    void drawCube() {
         glBegin(GL_TRIANGLES);
         glColor3f(1f, 0, 0);
         glVertex3d(0f, 1f, 0f);
@@ -158,6 +177,9 @@ public class Test3D extends Thread {
                 case (-1): {
                     float incX = Mouse.getEventDX() / 3;
                     glRotatef_angle += incX;
+                    if (Mouse.isButtonDown(0)) {
+                        gluPerspective_fovy += Mouse.getEventDY();
+                    }
                     debug3("glRotatef_angle=%f", glRotatef_angle);
                     break;
                 }
