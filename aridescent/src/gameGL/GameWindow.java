@@ -51,6 +51,7 @@ public class GameWindow {
         /* Checks return value from menu to decide to start game or just exit program. */
 		testMenu.show();
 		setCamera();
+		CameraPosition.init(player);
 
 		CameraPosition.init(player);
 
