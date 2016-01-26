@@ -128,14 +128,6 @@ public class Test3D extends Thread {
     }
 
     void initGL() {
-        //glViewport(0, 0, 800, 600);
-        //glMatrixMode(GL_PROJECTION);
-        //glLoadIdentity();
-        //glFrustum(-1f, 1f, -1f, 1f, 1f, 10f);
-        //glOrtho(0, 640, 0, 480, 1, -1);
-
-        //glMatrixMode(GL_MODELVIEW);
-        //glLoadIdentity();
         Mouse.setGrabbed(true);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClearDepth(1.0f);
@@ -143,8 +135,6 @@ public class Test3D extends Thread {
         glDepthFunc(GL_LESS);
         glShadeModel(GL_SMOOTH);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-        //Keyboard.enableRepeatEvents(true);
     }
 
     void loop() {
@@ -163,21 +153,6 @@ public class Test3D extends Thread {
         }
     }
 
-    void draw_test() {
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        //gluPerspective(0f, 800f / 600f, 1f, 11f);
-        gluPerspective(gluPerspective_fovy, gluPerspective_aspect, gluPerspective_zNear, gluPerspective_zFar);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        gluLookAt(gluLookAt_eyex, gluLookAt_eyey, gluLookAt_eyez,
-                gluLookAt_centerx+lx, gluLookAt_centery, gluLookAt_centerz+lz,
-                gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
-        glTranslatef(1f, 1f, -4f);
-        glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
-
-    }
-
     void draw() {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -185,29 +160,18 @@ public class Test3D extends Thread {
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        //glPushMatrix();
-        //drawPyramid();
-        //glLoadIdentity();
         gluLookAt(gluLookAt_eyex, gluLookAt_eyey, gluLookAt_eyez,
                 gluLookAt_eyex+lx, gluLookAt_centery, gluLookAt_eyez+lz,
                 gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
         glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
         glRotatef(glRotatef_angley, 1f, 0f, 0f);
         drawCubes(10f, 10f);
-        //glPopMatrix();
-
-        /*
-        glTranslatef(-2f, 0f, -2f);
-        glRotatef(89f, 1f, 0f, 0f);
-        drawPlane();
-        */
     }
 
     void drawCubes(float xtarget, float ztarget) {
         for (float x = 0; x < xtarget; x += 0.5) {
             glTranslatef(0.5f, 0f, -(ztarget*1f)); // 1f = area of cubes
             for (float z = 0; z < ztarget; z += 0.5) {
-                //glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
                 glTranslatef(0f, 0f, 0.5f);
                 setRandomColor((int)x, (int)z);
                 drawCube();
@@ -217,18 +181,6 @@ public class Test3D extends Thread {
 
     void setRandomColor(int x, int z) {
         glColor3f(rcolor[x][z][0], rcolor[x][z][1], rcolor[x][z][2]);
-    }
-
-    void drawPlane() {
-        Color.blue.bind();
-        glBegin(GL_POLYGON);
-        glVertex3f(0f, 0f, 0f);
-        glVertex3f(0f, 6f, 0f);
-        glVertex3f(6f, 6f, 0f);
-        glVertex3f(6f, 0f, 0f);
-        glEnd();
-        TextureImpl.unbind();
-
     }
 
     void drawCube() {
@@ -271,73 +223,21 @@ public class Test3D extends Thread {
             int event = Mouse.getEventButton();
             switch(event) {
                 case (-1): {
-                    /*
-                    if (Mouse.isButtonDown(0)) {
-                        glRotatef_angle = (glRotatef_angle > 360) ? 0f : glRotatef_angle+Mouse.getEventDX();
-                        glRotatef_angley = (glRotatef_angley > 360) ? 0f : glRotatef_angley+Mouse.getEventDY();
-                    } else if (Mouse.isButtonDown(1)) {
-                        gluLookAt_eyex -= Mouse.getEventDY() / 3f;
-                        gluLookAt_centerx -= Mouse.getEventDY() / 3f;
-                        gluLookAt_eyez -= Mouse.getEventDX() / 3f;
-                        gluLookAt_centerz -= Mouse.getEventDX() / 3f;
-                        debug3("eyex=%f, centerx=%f, eyez=%f, centerz=%f",
-                                gluLookAt_eyex, gluLookAt_centerx, gluLookAt_eyez, gluLookAt_centerz);
-                    }
-                    //gluLookAt_centerx += Mouse.getDX();
-                    //gluLookAt_centerz += Mouse.getDX();
-
-                    float DXZ = Mouse.getDX();
-                    debug3("DXZ=%f", DXZ);
-                    if (DXZ < 0) {
-                        if (gluLookAt_centerx > 10f && gluLookAt_centerz > -10f) {
-                            gluLookAt_centerz += DXZ * 0.01f;
-                        } else if (gluLookAt_centerz > 10f) {
-                            gluLookAt_centerx -= DXZ * 0.01f;
-                        } else if (gluLookAt_centerz < -10f && gluLookAt_centerx > -10f) {
-                            gluLookAt_centerx += DXZ * 0.01f;
-                        } else if (gluLookAt_centerx < -10f) {
-                            gluLookAt_centerz -= DXZ * 0.01f;
-                        } else {
-                            gluLookAt_centerx -= DXZ * 0.01f;
-                        }
-                    } else {
-                        if (gluLookAt_centerx > 10f && gluLookAt_centerz < 10f) {
-                            gluLookAt_centerz += DXZ * 0.01f;
-                        } else if (gluLookAt_centerz > 10f && gluLookAt_centerx > -10f) {
-                            gluLookAt_centerx -= DXZ * 0.01f;
-                        } else if (gluLookAt_centerz < -10f) {
-                            gluLookAt_centerx += DXZ * 0.01f;
-                        } else if (gluLookAt_centerx < -10f) {
-                            gluLookAt_centerz -= DXZ * 0.01f;
-                        } else {
-                            gluLookAt_centerx -= DXZ * 0.01f;
-                        }
-                    }
-                    /*
-                    if (DXZ > 0) {
-                        //gluLookAt_centerz += DXZ * 0.01f;
-                        //gluLookAt_centerz -= DXZ * 0.01f;
-                        //gluLookAt_centerz = gluLookAt_centerx;
-                    } else if (gluLookAt_centerx > 10f && DXZ > 0) {
-                        gluLookAt_centerx -= DXZ * 0.01f;
-                        //gluLookAt_centerz -= DXZ * 0.01f;
-                    } else (DXZ < )
-                    */
-
                     float DY = Mouse.getDY();
+                    // FIXME: Change to same math as horizontal look
                     if (gluLookAt_centery < 10f && DY > 0) {
-                        gluLookAt_centery += DY * 0.01f;
+                        gluLookAt_centery += DY * 0.005f;
                     } else if (gluLookAt_centery > -10f && DY < 0) {
-                        gluLookAt_centery += DY * 0.01f;
+                        gluLookAt_centery += DY * 0.005f;
                     }
 
                     float DX = Mouse.getDX();
                     if (DX > 0) {
-                        angle += 0.01f*DX;
+                        angle += 0.005f*DX;
                         lx = (float)sin(angle);
                         lz = (float)-cos(angle);
                     } else {
-                        angle -= 0.01f*-DX;
+                        angle -= 0.005f*-DX;
                         lx = (float)sin(angle);
                         lz = (float)-cos(angle);
                     }
@@ -385,12 +285,12 @@ public class Test3D extends Thread {
             gluLookAt_eyez -= lz * 0.1f;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-            angle += 0.01f;
+            angle += 0.05f;
             lx = (float)sin(angle);
             lz = (float)-cos(angle);
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-            angle -= 0.01f;
+            angle -= 0.05f;
             lx = (float)sin(angle);
             lz = (float)-cos(angle);
         }
