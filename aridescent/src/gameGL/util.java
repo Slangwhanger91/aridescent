@@ -2,6 +2,8 @@ package gameGL;
 
 import org.lwjgl.input.Keyboard;
 
+/* Test commit */
+
 public class util {
     public static void debug(String format, Object... objs) {
         if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
