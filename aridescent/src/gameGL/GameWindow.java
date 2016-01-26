@@ -55,8 +55,6 @@ public class GameWindow {
 		setCamera();
 		CameraPosition.init(player);
 
-		CameraPosition.init(player);
-
 		while(!Display.isCloseRequested()){
 			if (menuFlag) {
 				/* Pauses and shows menu again (which is already in memory and paused) */

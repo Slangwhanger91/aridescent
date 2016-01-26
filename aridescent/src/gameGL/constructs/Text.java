@@ -37,6 +37,10 @@ public class Text implements Renderable {
         this.text = text;
     }
 
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
     @Override
     public void render() {
         font.drawString(xpos, ypos, text, color);
