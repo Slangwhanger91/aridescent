@@ -19,10 +19,10 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class Test3D extends Thread {
     HashMap<String, Float> config = new HashMap<>();
-    Float gluPerspective_fovy = 120f;
+    Float gluPerspective_fovy = 45f;
     Float gluPerspective_aspect = 800f/600f;
-    Float gluPerspective_zNear = 1f;
-    Float gluPerspective_zFar = 30f;
+    Float gluPerspective_zNear = 0.1f;
+    Float gluPerspective_zFar = 20f;
     Float glRotatef_angle = 0f;
     Float glRotatef_angley = 0f;
     Float glRotatef_x = 0f;
@@ -31,14 +31,14 @@ public class Test3D extends Thread {
     Float glTranslatef_x = 0f;
     Float glTranslatef_y = 0f;
     Float glTranslatef_z = 0f;
-    Float gluLookAt_eyex = -10f;
-    Float gluLookAt_eyey = 5f;
+    Float gluLookAt_eyex = -4f;
+    Float gluLookAt_eyey = 4f;
     Float gluLookAt_eyez = 0f;
     Float gluLookAt_centerx = 0f;
     Float gluLookAt_centery = 0f;
     Float gluLookAt_centerz = 0f;
-    Float gluLookAt_upx = 1f;
-    Float gluLookAt_upy = 0f;
+    Float gluLookAt_upx = 0f;
+    Float gluLookAt_upy = 1f;
     Float gluLookAt_upz = 0f;
 
     @Override
@@ -168,20 +168,33 @@ public class Test3D extends Thread {
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+        //glPushMatrix();
+        //drawPyramid();
+        //glLoadIdentity();
         gluLookAt(gluLookAt_eyex, gluLookAt_eyey, gluLookAt_eyez,
                 gluLookAt_centerx, gluLookAt_centery, gluLookAt_centerz,
                 gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
-        //glPushMatrix();
         glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
         glRotatef(glRotatef_angley, 1f, 0f, 0f);
-        glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
-        //drawPyramid();
-        drawCube();
+        drawCubes(10f, 10f);
         //glPopMatrix();
 
+        /*
         glTranslatef(-2f, 0f, -2f);
         glRotatef(89f, 1f, 0f, 0f);
         drawPlane();
+        */
+    }
+
+    void drawCubes(float xtarget, float ztarget) {
+        for (float x = 0; x < xtarget; x += 0.5) {
+            glTranslatef(0.5f, 0f, -(ztarget*1f));
+            for (float z = 0; z < ztarget; z += 0.5) {
+                //glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
+                glTranslatef(0f, 0f, 0.5f);
+                drawCube();
+            }
+        }
     }
 
     void drawPlane() {
@@ -236,42 +249,20 @@ public class Test3D extends Thread {
         glEnd();
     }
 
-    void drawPyramid() {
-        glBegin(GL_TRIANGLES);
-        glColor3f(1f, 0, 0);
-        glVertex3d(0f, 1f, 0f);
-        glVertex3d(-1f, -1f, 1f);
-        glVertex3d(1f, -1f, 1f);
-
-        glColor3f(0f, 1, 0);
-        glVertex3d(0f, 1f, 0f);
-        glVertex3d(1f, -1f, 1f);
-        glVertex3d(1f, -1f, -1f);
-
-        glColor3f(0f, 0, 1);
-        glVertex3d(0f, 1f, 0f);
-        glVertex3d(1f, -1f, -1f);
-        glVertex3d(-1f, -1f, -1f);
-
-        glColor3f(1f, 1, 1);
-        glVertex3d(0f, 1f, 0f);
-        glVertex3d(-1f, -1f, -1f);
-        glVertex3d(-1f, -1f, 1f);
-        glEnd();
-    }
-
     void poll() {
         int eventCtr = 0;
         while (Mouse.next()) {
             int event = Mouse.getEventButton();
             switch(event) {
                 case (-1): {
-                    glRotatef_angle = (glRotatef_angle > 360) ? 0f : glRotatef_angle+Mouse.getEventDX();
-                    glRotatef_angley = (glRotatef_angley > 360) ? 0f : glRotatef_angley+Mouse.getEventDY();
                     if (Mouse.isButtonDown(0)) {
-                        gluPerspective_fovy += Mouse.getEventDY();
-                    } else if (Mouse.isButtonDown(1)) {
+                        glRotatef_angle = (glRotatef_angle > 360) ? 0f : glRotatef_angle+Mouse.getEventDX();
                         glRotatef_angley = (glRotatef_angley > 360) ? 0f : glRotatef_angley+Mouse.getEventDY();
+                    } else if (Mouse.isButtonDown(1)) {
+                        gluLookAt_eyex -= Mouse.getEventDY() / 3f;
+                        gluLookAt_centerx -= Mouse.getEventDY() / 3f;
+                        gluLookAt_eyez -= Mouse.getEventDX() / 3f;
+                        gluLookAt_centerz -= Mouse.getEventDX() / 3f;
                     }
                     debug3("glRotatef_angle=%f", glRotatef_angle);
                     break;
