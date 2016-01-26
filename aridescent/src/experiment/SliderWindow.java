@@ -5,9 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -94,12 +92,12 @@ public class SliderWindow extends Application {
         VBox menu = new VBox();
         menu.setPadding(new Insets(0, 10, 0, 0));
         menu.setAlignment(Pos.BOTTOM_RIGHT);
-        Button applyButton = new Button("Apply");
+        Button applyButton = new Button("UPDATE");
         applyButton.setOnAction(event -> model.updateConfig());
         menu.getChildren().addAll(applyButton);
         vbox.getChildren().add(menu);
 
-        Scene scene = new Scene(vbox, 1024, 268);
+        Scene scene = new Scene(vbox, 640, 480);
         primaryStage.setTitle("sliderwindow");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -119,32 +117,25 @@ public class SliderWindow extends Application {
         for (int i = 0; i < labels.length; i++) {
             String key = labels[i];
             Label lbl = new Label(labels[i]);
-            Slider slider = new Slider(floats[i][0], floats[i][1], floats[i][2]);
-            slider.setSnapToTicks(true);
-            slider.setMinorTickCount(1000);
-            slider.setMajorTickUnit(0.1);
-            Label value = new Label(Double.toString(slider.getValue()));
+            TextField input = new TextField(Double.toString(floats[i][2]));
+            Label value = new Label(input.getText());
 
-            slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-                value.setText(String.format("%f", newValue.doubleValue()));
-                model.config.replace(key, newValue.floatValue());
+            input.textProperty().addListener((observable, oldValue, newValue) -> {
+                try {
+                    float f = Float.valueOf(newValue);
+                    model.config.replace(key, f);
+                    value.setText(String.format("%f", f));
+                } catch(NumberFormatException nfe) {
+
+                }
             });
-
-
-            ColumnConstraints column1 = new ColumnConstraints(120);
-            ColumnConstraints column2 = new ColumnConstraints(760);
-            column2.setHgrow(Priority.ALWAYS);
-            column2.setFillWidth(true);
-            ColumnConstraints column3 = new ColumnConstraints(120);
-            slider.prefWidthProperty().bind(grid.widthProperty());
 
             GridPane.setConstraints(lbl, 0, i);
             grid.getChildren().add(lbl);
-            GridPane.setConstraints(slider, 1, i);
-            grid.getChildren().add(slider);
+            GridPane.setConstraints(input, 1, i);
+            grid.getChildren().add(input);
             GridPane.setConstraints(value, 2, i);
             grid.getChildren().add(value);
-            grid.getColumnConstraints().addAll(column1, column2, column3);
         }
     }
 }

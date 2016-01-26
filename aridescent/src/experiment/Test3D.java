@@ -188,7 +188,7 @@ public class Test3D extends Thread {
 
     void drawCubes(float xtarget, float ztarget) {
         for (float x = 0; x < xtarget; x += 0.5) {
-            glTranslatef(0.5f, 0f, -(ztarget*1f));
+            glTranslatef(0.5f, 0f, -(ztarget*1f)); // 1f = area of cubes
             for (float z = 0; z < ztarget; z += 0.5) {
                 //glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
                 glTranslatef(0f, 0f, 0.5f);
@@ -263,8 +263,9 @@ public class Test3D extends Thread {
                         gluLookAt_centerx -= Mouse.getEventDY() / 3f;
                         gluLookAt_eyez -= Mouse.getEventDX() / 3f;
                         gluLookAt_centerz -= Mouse.getEventDX() / 3f;
+                        debug3("eyex=%f, centerx=%f, eyez=%f, centerz=%f",
+                                gluLookAt_eyex, gluLookAt_centerx, gluLookAt_eyez, gluLookAt_centerz);
                     }
-                    debug3("glRotatef_angle=%f", glRotatef_angle);
                     break;
                 }
                 default: {
