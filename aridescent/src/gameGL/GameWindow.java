@@ -24,8 +24,8 @@ import platforms.*;
 public class GameWindow {
 	
 	private Player player;
-	private boolean exitFlag = false;
-	
+	private boolean menuFlag = false;
+
 	public static void main(String[] args) throws Exception {
 		try {
 			new GameWindow().start();
@@ -49,12 +49,18 @@ public class GameWindow {
 
 		Menu testMenu = new Menu();
         /* Checks return value from menu to decide to start game or just exit program. */
-		exitFlag = testMenu.show();
-
+		testMenu.show();
 		setCamera();
+
 		CameraPosition.init(player);
 
-		while(!Display.isCloseRequested() && !exitFlag){
+		while(!Display.isCloseRequested()){
+			if (menuFlag) {
+				/* Pauses and shows menu again (which is already in memory and paused) */
+				testMenu.show();
+				menuFlag = false;
+				setCamera();
+			}
 			// Clear screen to black every frame
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -89,9 +95,18 @@ public class GameWindow {
 		}
 		*/
         if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-			exitFlag = true;
+			exit();
         }
+
+		if (Keyboard.isKeyDown(Keyboard.KEY_F10)) {
+			menuFlag = true;
+		}
     }
+
+	void exit() {
+		Display.destroy();
+		System.exit(0);
+	}
 
 	private void setCamera(){
 		// Modify projection Matrix
