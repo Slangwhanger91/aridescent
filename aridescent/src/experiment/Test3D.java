@@ -5,16 +5,9 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.opengl.TextureImpl;
-
-import java.security.Key;
-import java.util.HashMap;
 import java.util.Random;
 
-import static gameGL.util.debug;
-import static gameGL.util.debug2;
-import static gameGL.util.debug3;
+import static gameGL.util.*;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static org.lwjgl.opengl.GL11.*;
@@ -22,20 +15,13 @@ import static org.lwjgl.util.glu.GLU.gluLookAt;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class Test3D extends Thread {
-    HashMap<String, Float> config = new HashMap<>();
     Random random = new Random();
+    float[][][] rcolor = new float[10][10][3];
+
     Float gluPerspective_fovy = 45f;
     Float gluPerspective_aspect = 800f/600f;
     Float gluPerspective_zNear = 0.1f;
     Float gluPerspective_zFar = 20f;
-    Float glRotatef_angle = 0f;
-    Float glRotatef_angley = 0f;
-    Float glRotatef_x = 0f;
-    Float glRotatef_y = 1f;
-    Float glRotatef_z = 0f;
-    Float glTranslatef_x = 0f;
-    Float glTranslatef_y = 0f;
-    Float glTranslatef_z = 0f;
     Float gluLookAt_eyex = 5f;
     Float gluLookAt_eyey = 1f;
     Float gluLookAt_eyez = -4f;
@@ -46,23 +32,21 @@ public class Test3D extends Thread {
     Float gluLookAt_upy = 1f;
     Float gluLookAt_upz = 0f;
     float angle = 0f;
-    float[][][] rcolor = new float[10][10][3];
     private Float lx = 0f;
     private Float lz = -1f;
 
-    @Override
-    public synchronized void run() {
+    public static void main(String[] args) {
         try {
             Display.setDisplayMode(new DisplayMode(800, 600));
             Display.create();
-            show();
+            new Test3D();
         } catch (LWJGLException e) {
             e.printStackTrace();
         }
     }
 
-    public void show() {
-        System.out.println("Test3D show()");
+    public Test3D() {
+        System.out.println("Test3D");
         for (int i = 0; i < rcolor.length; i++) {
             for (int j = 0; j < rcolor[0].length; j++) {
                 rcolor[i][j][0] = random.nextFloat();
@@ -70,56 +54,8 @@ public class Test3D extends Thread {
                 rcolor[i][j][2] = random.nextFloat();
             }
         }
-        initConfig();
         initGL();
         loop();
-    }
-
-    void initConfig() {
-        config.put("gluPerspective_fovy", gluPerspective_fovy);
-        config.put("gluPerspective_aspect", gluPerspective_aspect);
-        config.put("gluPerspective_zNear", gluPerspective_zNear);
-        config.put("gluPerspective_zFar", gluPerspective_zFar);
-        config.put("glRotatef_angle", glRotatef_angle);
-        config.put("glRotatef_x", glRotatef_x);
-        config.put("glRotatef_y", glRotatef_y);
-        config.put("glRotatef_z", glRotatef_z);
-        config.put("glTranslatef_x", glTranslatef_x);
-        config.put("glTranslatef_y", glTranslatef_y);
-        config.put("glTranslatef_z", glTranslatef_z);
-        config.put("gluLookAt_eyex", gluLookAt_eyex);
-        config.put("gluLookAt_eyey", gluLookAt_eyey);
-        config.put("gluLookAt_eyez", gluLookAt_eyez);
-        config.put("gluLookAt_centerx", gluLookAt_centerx);
-        config.put("gluLookAt_centery", gluLookAt_centery);
-        config.put("gluLookAt_centerz", gluLookAt_centerz);
-        config.put("gluLookAt_upx", gluLookAt_upx);
-        config.put("gluLookAt_upy", gluLookAt_upy);
-        config.put("gluLookAt_upz", gluLookAt_upz);
-        updateConfig();
-    }
-
-    void updateConfig() {
-        gluPerspective_fovy = config.get("gluPerspective_fovy");
-        gluPerspective_aspect = config.get("gluPerspective_aspect");
-        gluPerspective_zNear = config.get("gluPerspective_zNear");
-        gluPerspective_zFar = config.get("gluPerspective_zFar");
-        glRotatef_angle = config.get("glRotatef_angle");
-        glRotatef_x = config.get("glRotatef_x");
-        glRotatef_y = config.get("glRotatef_y");
-        glRotatef_z = config.get("glRotatef_z");
-        glTranslatef_x = config.get("glTranslatef_x");
-        glTranslatef_y = config.get("glTranslatef_y");
-        glTranslatef_z = config.get("glTranslatef_z");
-        gluLookAt_eyex = config.get("gluLookAt_eyex");
-        gluLookAt_eyey = config.get("gluLookAt_eyey");
-        gluLookAt_eyez = config.get("gluLookAt_eyez");
-        gluLookAt_centerx = config.get("gluLookAt_centerx");
-        gluLookAt_centery = config.get("gluLookAt_centery");
-        gluLookAt_centerz = config.get("gluLookAt_centerz");
-        gluLookAt_upx = config.get("gluLookAt_upx");
-        gluLookAt_upy = config.get("gluLookAt_upy");
-        gluLookAt_upz = config.get("gluLookAt_upz");
     }
 
     public void exit() {
@@ -163,8 +99,6 @@ public class Test3D extends Thread {
         gluLookAt(gluLookAt_eyex, gluLookAt_eyey, gluLookAt_eyez,
                 gluLookAt_eyex+lx, gluLookAt_centery, gluLookAt_eyez+lz,
                 gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
-        glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
-        glRotatef(glRotatef_angley, 1f, 0f, 0f);
         drawCubes(10f, 10f);
     }
 
