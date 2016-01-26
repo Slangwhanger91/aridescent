@@ -24,12 +24,13 @@ public class Test3D extends Thread {
     Float gluPerspective_zNear = 1f;
     Float gluPerspective_zFar = 30f;
     Float glRotatef_angle = 0f;
+    Float glRotatef_angley = 0f;
     Float glRotatef_x = 0f;
     Float glRotatef_y = 1f;
     Float glRotatef_z = 0f;
-    Float glTranslatef_x = 1f;
+    Float glTranslatef_x = 0f;
     Float glTranslatef_y = 0f;
-    Float glTranslatef_z = -4f;
+    Float glTranslatef_z = 0f;
     Float gluLookAt_eyex = -10f;
     Float gluLookAt_eyey = 5f;
     Float gluLookAt_eyez = 0f;
@@ -164,20 +165,21 @@ public class Test3D extends Thread {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         gluPerspective(gluPerspective_fovy, gluPerspective_aspect, gluPerspective_zNear, gluPerspective_zFar);
+
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         gluLookAt(gluLookAt_eyex, gluLookAt_eyey, gluLookAt_eyez,
                 gluLookAt_centerx, gluLookAt_centery, gluLookAt_centerz,
                 gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
-        glPushMatrix();
-
+        //glPushMatrix();
         glRotatef(glRotatef_angle, glRotatef_x, glRotatef_y, glRotatef_z);
+        glRotatef(glRotatef_angley, 1f, 0f, 0f);
         glTranslatef(glTranslatef_x, glTranslatef_y, glTranslatef_z);
-        drawPyramid();
+        //drawPyramid();
         drawCube();
+        //glPopMatrix();
 
-        glPopMatrix();
-        glTranslatef(2f, 0f, -4f);
+        glTranslatef(-2f, 0f, -2f);
         glRotatef(89f, 1f, 0f, 0f);
         drawPlane();
     }
@@ -186,16 +188,16 @@ public class Test3D extends Thread {
         Color.blue.bind();
         glBegin(GL_POLYGON);
         glVertex3f(0f, 0f, 0f);
-        glVertex3f(0f, 600f, 0f);
-        glVertex3f(800f, 600f, 0f);
-        glVertex3f(800f, 0f, 0f);
+        glVertex3f(0f, 6f, 0f);
+        glVertex3f(6f, 6f, 0f);
+        glVertex3f(6f, 0f, 0f);
         glEnd();
         TextureImpl.unbind();
 
     }
 
     void drawCube() {
-        glBegin(GL_POLYGON);
+        glBegin(GL_QUADS); // FIXME: Replace with GL_TRIANGLES
         glColor3f(1f, 0f, 0f);
         glVertex3f(0f, 0f, 0f);
         glVertex3f(0f, 0.5f, 0f);
@@ -264,13 +266,12 @@ public class Test3D extends Thread {
             int event = Mouse.getEventButton();
             switch(event) {
                 case (-1): {
-                    float incX = Mouse.getEventDX() / 3;
-                    glRotatef_angle += incX;
+                    glRotatef_angle = (glRotatef_angle > 360) ? 0f : glRotatef_angle+Mouse.getEventDX();
+                    glRotatef_angley = (glRotatef_angley > 360) ? 0f : glRotatef_angley+Mouse.getEventDY();
                     if (Mouse.isButtonDown(0)) {
                         gluPerspective_fovy += Mouse.getEventDY();
                     } else if (Mouse.isButtonDown(1)) {
-                        gluLookAt_centerx += Mouse.getEventDX();
-                        gluLookAt_centerz += Mouse.getEventDY();
+                        glRotatef_angley = (glRotatef_angley > 360) ? 0f : glRotatef_angley+Mouse.getEventDY();
                     }
                     debug3("glRotatef_angle=%f", glRotatef_angle);
                     break;
