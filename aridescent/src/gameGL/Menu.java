@@ -37,7 +37,7 @@ public class Menu {
 
     public Menu() {
         try {
-            testTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("test_image.png"));
+            testTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/test_image.png"));
             System.out.printf("testTexture: width=%d, height=%d\n", testTexture.getImageWidth(), testTexture.getImageHeight());
         } catch (IOException e) {
             e.printStackTrace();

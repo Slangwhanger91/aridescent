@@ -11,16 +11,23 @@ import static org.lwjgl.opengl.GL11.glVertex2d;
 
 import org.lwjgl.input.Keyboard;
 
+import platforms.Platform;
+
 public class Player {
 
-	private double x, y, xspeed, yspeed;
+	private double x, y, xspeed, yspeed, width, height;
 	private boolean jumpPressed, jumpWasPressed;
 	private int jumpsRemaining;
+
+	public double getX(){ return x; }
+	public double getY(){ return y; }
 
 	public Player(){
 
 		x = 100;
 		y = 100;
+		width = 16;
+		height = 16;
 		xspeed = 0;
 		yspeed = 0;
 	}
@@ -28,12 +35,19 @@ public class Player {
 	public void logic(){
 		x += xspeed;
 		y += yspeed;
-
+		CameraPosition.addX(xspeed);
+		CameraPosition.addY(yspeed);
+	
 		yspeed -= 0.4;
 		// Break falling velocity and correct to actual ground level
-		if(y <= 32){ // if on ground
+		Platform platform = Platform.findGround(x, y, width);
+		if(platform != null || y <= 32){ // if on ground
 			yspeed = 0;
-			y = 32;
+
+			if(y  <= 32) y = 32;
+			else{
+				y = platform.getY();
+			}
 			jumpsRemaining = 2;
 
 			// Friction
@@ -57,22 +71,23 @@ public class Player {
 		glPushMatrix();
 
 		// Moves to the given x,y position on Display
-		glTranslated(x, y, 0);
+		glTranslated(x - CameraPosition.getPosition_x(), 
+				y - CameraPosition.getPosition_y(), 0);
 
 		// Color and shape size
 		glBegin(GL_QUADS);
 
 		glColor3d(1, 0, 0);
-		glVertex2d(-8, 0); //bottom left
+		glVertex2d(0, 0); //bottom left
 
 		glColor3d(0, 1, 0);
-		glVertex2d(8, 0); //bottom right
+		glVertex2d(width, 0); //bottom right
 
 		glColor3d(0, 0, 1);
-		glVertex2d(8, 16); //top right
+		glVertex2d(width, height); //top right
 
 		glColor3d(1, 1, 0);
-		glVertex2d(-8, 16); //top left
+		glVertex2d(0, height); //top left
 
 		glEnd();
 
