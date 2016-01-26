@@ -37,6 +37,7 @@ public class Test3D extends Thread {
     float angle = 0f;
     private Float lx = 0f;
     private Float lz = -1f;
+    private long fps = 0;
 
     Text text;
 
@@ -84,15 +85,22 @@ public class Test3D extends Thread {
 
     void loop() {
         long tick = 0;
+        long now = System.currentTimeMillis();
+        long old_tick = 0;
 
         while (!Display.isCloseRequested()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            if ((System.currentTimeMillis() - now) > 1000) {
+                fps = (tick - old_tick);
+                old_tick = tick;
+                now = System.currentTimeMillis();
+            }
 
             draw();
             poll();
 
             Display.update();
-            Display.sync(120);
+            Display.sync(100);
             debug("tick=%d", tick);
             tick++;
         }
@@ -119,7 +127,7 @@ public class Test3D extends Thread {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(0, 800, 600, 0, -1f, 21f);
-        text.setText(String.format("(%f, %f)", gluLookAt_eyex, gluLookAt_eyez));
+        text.setText(String.format("FPS: %d XY: (%f, %f)", fps, gluLookAt_eyex, gluLookAt_eyez));
         text.render();
         glPopMatrix();
     }
