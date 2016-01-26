@@ -21,6 +21,8 @@ import org.lwjgl.opengl.DisplayMode;
 
 import platforms.*;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class GameWindow {
 	
 	private Player player;
