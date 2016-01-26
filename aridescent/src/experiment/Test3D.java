@@ -1,10 +1,13 @@
 package experiment;
 
+import gameGL.constructs.Text;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.newdawn.slick.Color;
+
 import java.util.Random;
 
 import static gameGL.util.*;
@@ -35,6 +38,8 @@ public class Test3D extends Thread {
     private Float lx = 0f;
     private Float lz = -1f;
 
+    Text text;
+
     public static void main(String[] args) {
         try {
             Display.setDisplayMode(new DisplayMode(800, 600));
@@ -54,6 +59,8 @@ public class Test3D extends Thread {
                 rcolor[i][j][2] = random.nextFloat();
             }
         }
+
+        text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
         initGL();
         loop();
     }
@@ -68,6 +75,8 @@ public class Test3D extends Thread {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthFunc(GL_LESS);
         glShadeModel(GL_SMOOTH);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -100,6 +109,19 @@ public class Test3D extends Thread {
                 gluLookAt_eyex+lx, gluLookAt_centery, gluLookAt_eyez+lz,
                 gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
         drawCubes(10f, 10f);
+        drawOverlay();
+    }
+
+    void drawOverlay() {
+        glPushMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, 800, 600, 0, -1f, 21f);
+        text.setText(String.format("(%f, %f)", gluLookAt_eyex, gluLookAt_eyez));
+        text.render();
+        glPopMatrix();
     }
 
     void drawCubes(float xtarget, float ztarget) {
