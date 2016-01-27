@@ -52,10 +52,14 @@ public class Test3D extends Game {
     private float[][][] rcolor = new float[10][10][3];
 
     public static void main(String[] args) {
-        new Test3D(800, 600).run();
+        try {
+            new Test3D(800, 600).run();
+        } catch (LWJGLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public Test3D(int width, int height) {
+    public Test3D(int width, int height) throws LWJGLException {
         super(width, height);
 
         System.out.println("Test3D");
@@ -69,7 +73,6 @@ public class Test3D extends Game {
 
         text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
         overlayObjects = new Renderable[]{text};
-        run();
     }
 
     protected void init() {

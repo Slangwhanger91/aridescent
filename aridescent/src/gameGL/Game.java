@@ -15,14 +15,9 @@ public abstract class Game {
     private int fpsTarget = 100;
     private int glClearBits = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
 
-    protected Game(int width, int height) {
-        try {
-            Display.setDisplayMode(new DisplayMode(width, height));
-            Display.create();
-        } catch (LWJGLException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+    protected Game(int width, int height) throws LWJGLException {
+        Display.setDisplayMode(new DisplayMode(width, height));
+        Display.create();
         DISPLAY_WIDTH = width;
         DISPLAY_HEIGHT = height;
     }

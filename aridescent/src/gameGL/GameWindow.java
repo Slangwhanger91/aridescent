@@ -23,22 +23,21 @@ import platforms.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class GameWindow {
+public class GameWindow extends Game {
 	
 	private Player player;
 	private boolean menuFlag = false;
 
 	public static void main(String[] args) throws Exception {
 		try {
-			new GameWindow().start();
+			new GameWindow(640, 480).run();
 		} catch (LWJGLException le) {
 			le.printStackTrace();
 		}
 	}
 
-	void start() throws LWJGLException {
-		Display.setDisplayMode(new DisplayMode(640, 480));
-		Display.create();
+	protected GameWindow(int width, int height) throws LWJGLException {
+		super(width, height);
 
 		player = new Player();
 		Platform.createMaxPlatforms();
@@ -52,49 +51,35 @@ public class GameWindow {
 		Menu testMenu = new Menu();
         /* Checks return value from menu to decide to start game or just exit program. */
 		testMenu.show();
-		setCamera();
 		CameraPosition.init(player);
 
-		while(!Display.isCloseRequested()){
-			if (menuFlag) {
-				/* Pauses and shows menu again (which is already in memory and paused) */
-				testMenu.show();
-				menuFlag = false;
-				setCamera();
-			}
-			// Clear screen to black every frame
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			drawBackground();
-			
-			// Player logic and animation
-			player.logic();
-			player.draw();
-
-			// Platforms animation
-			Platform.drawAll();
-			
-			// Enemy logic and animation
-			//enemy.logic();
-			//enemy.draw();
-			
-			poll();
-			Display.update();
-			Display.sync(60);
+		/* Temporarily disabled
+		if (menuFlag) {
+			// Pauses and shows menu again (which is already in memory and paused)
+			testMenu.show();
+			menuFlag = false;
+			setCamera();
 		}
-		Display.destroy();
+        */
 	}
 
-	private void poll() {
-		/* Doesn't seem neccesary.
-		if (!Keyboard.isCreated()) {
-			try {
-				Keyboard.create();
-			} catch (LWJGLException e) {
-				e.printStackTrace();
-			}
-		}
-		*/
+	protected void update() {
+		player.logic();
+		//enemy.logic();
+	}
+
+	protected void render() {
+		drawBackground();
+
+		// Player logic and animation
+		player.draw();
+		//enemy.draw();
+
+		// Platforms animation
+		Platform.drawAll();
+	}
+
+	protected void poll() {
         if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
 			exit();
         }
@@ -104,12 +89,7 @@ public class GameWindow {
 		}
     }
 
-	void exit() {
-		Display.destroy();
-		System.exit(0);
-	}
-
-	private void setCamera(){
+	protected void init() {
 		// Modify projection Matrix
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
