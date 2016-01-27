@@ -3,12 +3,19 @@ package experiment;
 import gameGL.Game;
 import gameGL.constructs.Crosshair;
 import gameGL.constructs.Text;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.ARBVertexArrayObject;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.Renderable;
 import org.newdawn.slick.Color;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.Random;
 
 import static gameGL.util.*;
@@ -51,6 +58,121 @@ public class Test3D extends Game {
     private Random random = new Random();
     private float[][][] rcolor = new float[10][10][3];
 
+    FloatBuffer fbuf;
+
+    static int createVBOID() {
+        if (GLContext.getCapabilities().GL_ARB_vertex_buffer_object) {
+            IntBuffer buffer = BufferUtils.createIntBuffer(1);
+            ARBVertexArrayObject.glGenVertexArrays(buffer);
+            return buffer.get(0);
+        }
+        return 0;
+    }
+
+    void vertexBufferData(int id, FloatBuffer buffer) {
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+    }
+
+    void usage() {
+        float[] ftest = {
+                0f, 0f, 0f,
+                1f, 1f, 1f,
+                1f, 0f, 0f,
+                0f, 1f, 0f,
+                0f, 0f, 1f,
+                1f, 1f, 0f,
+                0f, 1f, 1f,
+                1f, 0f, 1f,
+        };
+
+        byte[] indices = {
+                0, 3, 5, 2,
+                4, 6, 1, 7,
+                0, 4, 7, 2,
+                3, 6, 1, 5,
+                0, 5, 6, 3,
+                2, 7, 1, 5,
+        };
+
+        int id = createVBOID();
+        float[] farray = new float[8*3];
+        fbuf = BufferUtils.createFloatBuffer(farray.length*3);
+        fbuf.put(farray);
+
+        int farray_index = 0;
+        for (int i = 0; i < ftest.length; i++) {
+            if (!isIn(ftest[i], farray)) {
+                farray[farray_index] = ftest[i][0];
+                farray[farray_index+1] = ftest[i][1];
+                farray[farray_index+2] = ftest[i][2];
+                farray_index += 3;
+            }
+        }
+
+        int count = 0;
+        for (float f: farray) {
+            System.out.print(count++);
+            System.out.print(" ");
+            System.out.println(f);
+        }
+
+        vertexBufferData(id, fbuf);
+    }
+
+    boolean isIn(float[] floats, float[] fbuf) {
+        for (int i = 0; i < fbuf.length; i+=3) {
+            if (floats[0] == fbuf[i] &&
+                    floats[1] == fbuf[i+1] &&
+                    floats[2] == fbuf[i+2]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void drawCube() {
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(24*3, 3, fbuf);
+        glDraw
+    }
+
+    public static void drawCube(float fromX, float toX,
+                                float fromY, float toY,
+                                float fromZ, float toZ) {
+        glBegin(GL_QUADS); // FIXME: Replace with GL_TRIANGLES
+        glVertex3f(fromX, fromY, fromZ);
+        glVertex3f(fromX, toY, fromZ);
+        glVertex3f(toX, toY, fromZ);
+        glVertex3f(toX, fromY, fromZ);
+
+        glVertex3f(fromX, fromY, toZ);
+        glVertex3f(fromX, toY, toZ);
+        glVertex3f(toX, toY, toZ);
+        glVertex3f(toX, fromY, toZ);
+
+        glVertex3f(fromX, fromY, fromZ);
+        glVertex3f(fromX, fromY, toZ);
+        glVertex3f(toX, fromY, toZ);
+        glVertex3f(toX, fromY, fromZ);
+
+        glVertex3f(fromX, toY, fromZ);
+        glVertex3f(fromX, toY, toZ);
+        glVertex3f(toX, toY, toZ);
+        glVertex3f(toX, toY, fromZ);
+
+        glVertex3f(fromX, fromY, fromZ);
+        glVertex3f(fromX, fromY, toZ);
+        glVertex3f(fromX, toY, toZ);
+        glVertex3f(fromX, toY, fromZ);
+
+        glVertex3f(toX, fromY, fromZ);
+        glVertex3f(toX, fromY, toZ);
+        glVertex3f(toX, toY, toZ);
+        glVertex3f(toX, toY, fromZ);
+        glEnd();
+    }
+
     public static void main(String[] args) {
         try {
             new Test3D(800, 600).run();
@@ -76,6 +198,8 @@ public class Test3D extends Game {
         text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
         xhair = new Crosshair(10f, DISPLAY_WIDTH, DISPLAY_HEIGHT, Color.red);
         overlayObjects = new Renderable[]{text, xhair};
+
+        usage();
     }
 
     protected void init() {
@@ -102,8 +226,8 @@ public class Test3D extends Game {
                 eyex+lx, centery, eyez+lz,
                 upx, upy, upz);
 
-        drawCubes(10f, 10f, 1f);
-        drawCubes(10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
+        //drawCubes(10f, 10f, 1f);
+        //drawCubes(10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
     }
 
