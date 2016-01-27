@@ -6,6 +6,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.util.Renderable;
 import org.newdawn.slick.Color;
 
 import java.util.Random;
@@ -17,29 +18,40 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluLookAt;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
-public class Test3D extends Thread {
-    Random random = new Random();
-    float[][][] rcolor = new float[10][10][3];
+public class Test3D {
+    private final float WIDTH = 800;
+    private final float HEIGHT = 600;
+    private Random random = new Random();
+    private float[][][] rcolor = new float[10][10][3];
 
-    Float gluPerspective_fovy = 45f;
-    Float gluPerspective_aspect = 800f/600f;
-    Float gluPerspective_zNear = 0.1f;
-    Float gluPerspective_zFar = 20f;
-    Float gluLookAt_eyex = 5f;
-    Float gluLookAt_eyey = 1f;
-    Float gluLookAt_eyez = -4f;
-    Float gluLookAt_centerx = 0f;
-    Float gluLookAt_centery = 0f;
-    Float gluLookAt_centerz = 0f;
-    Float gluLookAt_upx = 0f;
-    Float gluLookAt_upy = 1f;
-    Float gluLookAt_upz = 0f;
-    float angle = 0f;
+    private Float fovy = 45f;
+    private Float aspect = 800f/600f;
+    private Float zNear = 0.1f;
+    private Float zFar = 20f;
+    private Float eyex = 5f;
+    private Float eyey = 1f;
+    private Float eyez = -4f;
+    private Float centerx = 0f;
+    private Float centery = 0f;
+    private Float centerz = 0f;
+    private Float upx = 0f;
+    private Float upy = 1f;
+    private Float upz = 0f;
+
+    private float angle = 0f;
     private Float lx = 0f;
     private Float lz = -1f;
     private long fps = 0;
+    
+    private Jumping jumpState = Jumping.NONE;
+    private boolean jumping = false;
+    private float jumpTo = 1.5f;
+    private float jumpFrom = 1f;
+    private float jumpIncrement = 0.02f; // increment per frame for now
 
-    Text text;
+    private Text text;
+    private Renderable[] overlayObjects;
+    // Make an "Updateable" for logic too, so only "registered" objects are "updated" (?)
 
     public static void main(String[] args) {
         try {
@@ -62,7 +74,8 @@ public class Test3D extends Thread {
         }
 
         text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
-        initGL();
+        overlayObjects = new Renderable[]{text};
+        init();
         loop();
     }
 
@@ -71,7 +84,7 @@ public class Test3D extends Thread {
         System.exit(0);
     }
 
-    void initGL() {
+    void init() {
         Mouse.setGrabbed(true);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClearDepth(1.0f);
@@ -96,6 +109,7 @@ public class Test3D extends Thread {
                 now = System.currentTimeMillis();
             }
 
+            logic();
             draw();
             poll();
 
@@ -109,36 +123,61 @@ public class Test3D extends Thread {
     void draw() {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        gluPerspective(gluPerspective_fovy, gluPerspective_aspect, gluPerspective_zNear, gluPerspective_zFar);
+        gluPerspective(fovy, aspect, zNear, zFar);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        gluLookAt(gluLookAt_eyex, gluLookAt_eyey, gluLookAt_eyez,
-                gluLookAt_eyex+lx, gluLookAt_centery, gluLookAt_eyez+lz,
-                gluLookAt_upx, gluLookAt_upy, gluLookAt_upz);
-        drawCubes(10f, 10f);
-        drawOverlay();
+        gluLookAt(eyex, eyey, eyez,
+                eyex+lx, centery, eyez +lz,
+                upx, upy, upz);
+        drawCubes(10f, 10f, 1f);
+        drawCubes(10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
+        draw2DOverlay(overlayObjects, WIDTH, HEIGHT);
     }
 
-    void drawOverlay() {
-        glPushMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, 800, 600, 0, -1f, 21f);
-        text.setText(String.format("FPS: %d XY: (%f, %f)", fps, gluLookAt_eyex, gluLookAt_eyez));
-        text.render();
-        glPopMatrix();
+    void logic() {
+        text.setText(String.format("FPS: %d XY: (%f, %f)", fps, eyex, eyez));
+        jumpLogic();
     }
 
-    void drawCubes(float xtarget, float ztarget) {
+    void jumpLogic() {
+        if (jumping) {
+            switch (jumpState) {
+                case UP:
+                    if (eyey >= jumpTo) {
+                        jumpState = Jumping.DOWN;
+                    } else {
+                        eyey += jumpIncrement;
+                        centery += jumpIncrement;
+                    }
+                    break;
+                case DOWN:
+                    if (eyey <= jumpFrom) {
+                        jumpState = Jumping.NONE;
+                    } else {
+                        eyey -= jumpIncrement;
+                        centery -= jumpIncrement;
+                    }
+                    break;
+                case NONE:
+                    jumping = false;
+                    break;
+            }
+        }
+    }
+
+    enum Jumping {
+        UP, DOWN, NONE
+    }
+
+    void drawCubes(float xtarget, float ztarget, float zfactor) {
+        // TODO: Make into constructs.Cube with Cube.drawCubes(..) (?)
         for (float x = 0; x < xtarget; x += 0.5) {
-            glTranslatef(0.5f, 0f, -(ztarget*1f)); // 1f = area of cubes
+            glTranslatef(0.5f, 0f, -(ztarget*zfactor)); // 1f = area of cubes
             for (float z = 0; z < ztarget; z += 0.5) {
                 glTranslatef(0f, 0f, 0.5f);
                 setRandomColor((int)x, (int)z);
-                drawCube();
+                drawCube(0f, 0.5f, -0.5f, 0.5f, 0f, 0.5f);
             }
         }
     }
@@ -147,39 +186,6 @@ public class Test3D extends Thread {
         glColor3f(rcolor[x][z][0], rcolor[x][z][1], rcolor[x][z][2]);
     }
 
-    void drawCube() {
-        glBegin(GL_QUADS); // FIXME: Replace with GL_TRIANGLES
-        glVertex3f(0f, 0f, 0f);
-        glVertex3f(0f, 0.5f, 0f);
-        glVertex3f(0.5f, 0.5f, 0f);
-        glVertex3f(0.5f, 0f, 0f);
-
-        glVertex3f(0f, 0f, 0.5f);
-        glVertex3f(0f, 0.5f, 0.5f);
-        glVertex3f(0.5f, 0.5f, 0.5f);
-        glVertex3f(0.5f, 0f, 0.5f);
-
-        glVertex3f(0f, 0f, 0f);
-        glVertex3f(0f, 0f, 0.5f);
-        glVertex3f(0.5f, 0f, 0.5f);
-        glVertex3f(0.5f, 0f, 0f);
-
-        glVertex3f(0f, 0.5f, 0f);
-        glVertex3f(0f, 0.5f, 0.5f);
-        glVertex3f(0.5f, 0.5f, 0.5f);
-        glVertex3f(0.5f, 0.5f, 0f);
-
-        glVertex3f(0f, 0f, 0f);
-        glVertex3f(0f, 0f, 0.5f);
-        glVertex3f(0f, 0.5f, 0.5f);
-        glVertex3f(0f, 0.5f, 0f);
-
-        glVertex3f(0.5f, 0f, 0f);
-        glVertex3f(0.5f, 0f, 0.5f);
-        glVertex3f(0.5f, 0.5f, 0.5f);
-        glVertex3f(0.5f, 0.5f, 0f);
-        glEnd();
-    }
 
     void poll() {
         int eventCtr = 0;
@@ -189,10 +195,10 @@ public class Test3D extends Thread {
                 case (-1): {
                     float DY = Mouse.getDY();
                     // FIXME: Change to same math as horizontal look
-                    if (gluLookAt_centery < 10f && DY > 0) {
-                        gluLookAt_centery += DY * 0.005f;
-                    } else if (gluLookAt_centery > -10f && DY < 0) {
-                        gluLookAt_centery += DY * 0.005f;
+                    if (centery < 10f && DY > 0) {
+                        centery += DY * 0.005f;
+                    } else if (centery > -10f && DY < 0) {
+                        centery += DY * 0.005f;
                     }
 
                     float DX = Mouse.getDX();
@@ -207,7 +213,7 @@ public class Test3D extends Thread {
                     }
 
                     debug3("centery=%f, centerx=%f, centerz=%f",
-                            gluLookAt_centery, gluLookAt_centerx, gluLookAt_centerz);
+                            centery, centerx, centerz);
                     break;
                 }
                 default: {
@@ -227,7 +233,7 @@ public class Test3D extends Thread {
                         exit();
                         break;
                     }
-                    case (Keyboard.KEY_SPACE): {
+                    case (Keyboard.KEY_G): {
                         if (Mouse.isGrabbed()) {
                             Mouse.setGrabbed(false);
                         } else {
@@ -235,18 +241,29 @@ public class Test3D extends Thread {
                         }
                         break;
                     }
+                    case (Keyboard.KEY_SPACE): {
+                        jumping = true;
+                        jumpState = Jumping.UP;
+                        break;
+                    }
 
+                }
+            } else {
+                switch (event) {
+                    case (Keyboard.KEY_SPACE): {
+                        break;
+                    }
                 }
             }
             eventCtr++;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-            gluLookAt_eyex += lx * 0.1f;
-            gluLookAt_eyez += lz * 0.1f;
+            eyex += lx * 0.1f;
+            eyez += lz * 0.1f;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-            gluLookAt_eyex -= lx * 0.1f;
-            gluLookAt_eyez -= lz * 0.1f;
+            eyex -= lx * 0.1f;
+            eyez -= lz * 0.1f;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
             angle += 0.05f;
