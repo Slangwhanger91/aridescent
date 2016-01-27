@@ -57,6 +57,8 @@ public class GameWindow extends Game {
 
 		// Platforms animation
 		Platform.drawAll();
+		renderText();
+		glDisable(GL_BLEND);
 	}
 
 	protected void poll() {
@@ -73,11 +75,13 @@ public class GameWindow extends Game {
 		// Modify projection Matrix
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, 640, 480, 0, 1, -1); //FIXME 0, 640, 0, 480, -1, 1 for normal view
+		glOrtho(0, 640, 480, 1, -1, 1); //FIXME 0, 640, 0, 480, -1, 1 for normal view
 
 		// Modify modelview matrix
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
 		initText();
 	}
@@ -104,14 +108,14 @@ public class GameWindow extends Game {
 	}
 	
 	public void renderText() {
+		glEnable(GL_BLEND);
 	    font.drawString(100, 50, "THE LIGHTWEIGHT JAVA GAMES LIBRARY", Color.yellow);
 	    font2.drawString(100, 100, "NICE LOOKING FONTS!", Color.green);
 	}
 	//=================================================================================
 	
 	private void drawBackground(){
-		renderText();
-		
+
 		// Sky
 
 		glBegin(GL_QUADS);
