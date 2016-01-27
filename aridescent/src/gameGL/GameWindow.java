@@ -1,23 +1,7 @@
 package gameGL;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glColor3d;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.opengl.GL11.glVertex2d;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
 
 import platforms.*;
 
@@ -26,7 +10,6 @@ import static org.lwjgl.opengl.GL11.*;
 public class GameWindow extends Game {
 	
 	private Player player;
-	private boolean menuFlag = false;
 
 	public static void main(String[] args) throws Exception {
 		try {
@@ -49,8 +32,9 @@ public class GameWindow extends Game {
 		//Enemy enemy = new Enemy();
 
 		Menu testMenu = new Menu();
+		setMenu(testMenu);
+		showMenu();
         /* Checks return value from menu to decide to start game or just exit program. */
-		testMenu.show();
 		CameraPosition.init(player);
 
 		/* Temporarily disabled
@@ -85,7 +69,7 @@ public class GameWindow extends Game {
         }
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_F10)) {
-			menuFlag = true;
+			showMenu();
 		}
     }
 

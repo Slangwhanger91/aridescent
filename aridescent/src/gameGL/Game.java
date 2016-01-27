@@ -14,6 +14,8 @@ public abstract class Game {
 
     private int fpsTarget = 100;
     private int glClearBits = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+    private boolean menuFlag = false;
+    private Menu menu;
 
     protected Game(int width, int height) throws LWJGLException {
         Display.setDisplayMode(new DisplayMode(width, height));
@@ -62,6 +64,15 @@ public abstract class Game {
 
     protected void setGlClear(int bits) {
         glClearBits = bits;
+    }
+
+    protected void setMenu(Menu menu) {
+        this.menu = menu;
+        menuFlag = true;
+    }
+
+    protected void showMenu() {
+        menu.show();
     }
 
     protected abstract void init();
