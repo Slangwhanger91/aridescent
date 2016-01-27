@@ -19,7 +19,7 @@ public class Image implements Renderable {
         x1 = xpos;
         y1 = ypos;
         try {
-            texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream(fileName));
+            texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("/res/"+fileName));
             System.out.printf("%s: width=%d, height=%d\n", fileName, texture.getImageWidth(), texture.getImageHeight());
         }
         catch(IOException e) { e.printStackTrace(); }

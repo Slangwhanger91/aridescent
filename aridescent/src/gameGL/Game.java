@@ -16,7 +16,7 @@ public abstract class Game {
     protected final int DISPLAY_HEIGHT_INT;
     protected long fps = 0;
 
-    private int fpsTarget = 100;
+    private int fpsTarget = 60;
     private int glClearBits = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
     private Menu menu;
 

@@ -7,6 +7,12 @@ import platforms.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
+import java.awt.Font;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.util.ResourceLoader;
+  
+
 public class GameWindow extends Game {
 	
 	private Player player;
@@ -67,14 +73,45 @@ public class GameWindow extends Game {
 		// Modify projection Matrix
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, 640, 0, 480, -1, 1);
+		glOrtho(0, 640, 480, 0, 1, -1); //FIXME 0, 640, 0, 480, -1, 1 for normal view
 
 		// Modify modelview matrix
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+		
+		initText();
 	}
 
+	//=================================================================================
+	TrueTypeFont font;
+	TrueTypeFont font2;
+	 
+	public void initText() {
+	    // load a default java font
+	    Font awtFont = new Font("Times New Roman", Font.BOLD, 24);
+	    font = new TrueTypeFont(awtFont, false);
+	         
+	    try {
+	        //InputStream inputStream = ResourceLoader.getResourceAsStream("/res/myfont.ttf");
+	         
+	        Font awtFont2 = Font.decode("Arial");
+	        awtFont2 = awtFont2.deriveFont(24f); // set font size
+	        font2 = new TrueTypeFont(awtFont2, false);
+	             
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }   
+	}
+	
+	public void renderText() {
+	    font.drawString(100, 50, "THE LIGHTWEIGHT JAVA GAMES LIBRARY", Color.yellow);
+	    font2.drawString(100, 100, "NICE LOOKING FONTS!", Color.green);
+	}
+	//=================================================================================
+	
 	private void drawBackground(){
+		renderText();
+		
 		// Sky
 
 		glBegin(GL_QUADS);
