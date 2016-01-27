@@ -6,10 +6,10 @@ import org.newdawn.slick.Color;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Line implements Renderable {
-    private int x, y, x2, y2;
+    private float x, y, x2, y2;
     private Color color;
 
-    public Line(int xpos, int ypos, int xpos2, int ypos2, Color color) {
+    public Line(float xpos, float ypos, float xpos2, float ypos2, Color color) {
         x = xpos;
         y = ypos;
         x2 = xpos2;
@@ -17,11 +17,11 @@ public class Line implements Renderable {
         this.color = color;
     }
 
-    public Line(int xpos, int ypos, int xpos2, int ypos2) {
+    public Line(float xpos, float ypos, float xpos2, float ypos2) {
         this(xpos, ypos, xpos2, ypos2, Color.white);
     }
 
-    public void setEndpoint(int x, int y) {
+    public void setEndpoint(float x, float y) {
         x2 = x;
         y2 = y;
     }

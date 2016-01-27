@@ -34,17 +34,7 @@ public class GameWindow extends Game {
 		Menu testMenu = new Menu(this);
 		setMenu(testMenu);
 		showMenu();
-        /* Checks return value from menu to decide to start game or just exit program. */
 		CameraPosition.init(player);
-
-		/* Temporarily disabled
-		if (menuFlag) {
-			// Pauses and shows menu again (which is already in memory and paused)
-			testMenu.show();
-			menuFlag = false;
-			setCamera();
-		}
-        */
 	}
 
 	protected void update() {

@@ -1,6 +1,7 @@
 package experiment;
 
 import gameGL.Game;
+import gameGL.constructs.Crosshair;
 import gameGL.constructs.Text;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -45,8 +46,9 @@ public class Test3D extends Game {
     private float jumpIncrement = 0.02f; // increment per frame for now
 
     private Text text;
+    private Crosshair xhair;
     private Renderable[] overlayObjects;
-    // Make an "Updateable" for logic too, so only "registered" objects are "updated" (?)
+    // TODO: Make an "Updateable" for logic too, so only "registered" objects are "updated" (?)
 
     private Random random = new Random();
     private float[][][] rcolor = new float[10][10][3];
@@ -62,6 +64,7 @@ public class Test3D extends Game {
     public Test3D(int width, int height) throws LWJGLException {
         super(width, height);
 
+        // Just create a few random colors for the cubes
         System.out.println("Test3D");
         for (int i = 0; i < rcolor.length; i++) {
             for (int j = 0; j < rcolor[0].length; j++) {
@@ -71,32 +74,36 @@ public class Test3D extends Game {
             }
         }
 
+        // Create overlay objects, drawn in as 2D layer later
         text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
-        overlayObjects = new Renderable[]{text};
+        xhair = new Crosshair(10f, DISPLAY_WIDTH, DISPLAY_HEIGHT, Color.red);
+        overlayObjects = new Renderable[]{text, xhair};
     }
 
     protected void init() {
-        Mouse.setGrabbed(true);
+        Mouse.setGrabbed(true); // Grab mouse for 1st person view
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClearDepth(1.0f);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDepthFunc(GL_LESS);
-        glShadeModel(GL_SMOOTH);
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+        glEnable(GL_DEPTH_TEST); // enables proper display of objects-infront-of-other-objects
+        glDepthFunc(GL_LESS); // defines the function used to derive ^
+        glEnable(GL_BLEND); // Neccesary for e.g. text display
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // ^ same
+        //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     }
 
     protected void render() {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        gluPerspective(fovy, aspect, zNear, zFar);
+        gluPerspective(fovy, aspect, zNear, zFar); // define our "viewport" and how far/near we see
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+
+        // Place the camera (player) and define where we're looking
+        // eye = "player", center = point-being--looked-at
         gluLookAt(eyex, eyey, eyez,
                 eyex+lx, centery, eyez +lz,
                 upx, upy, upz);
+
         drawCubes(10f, 10f, 1f);
         drawCubes(10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -149,22 +156,24 @@ public class Test3D extends Game {
         glColor3f(rcolor[x][z][0], rcolor[x][z][1], rcolor[x][z][2]);
     }
 
-
     public void poll() {
         int eventCtr = 0;
         while (Mouse.next()) {
             int event = Mouse.getEventButton();
             switch(event) {
-                case (-1): {
-                    float DY = Mouse.getDY();
+                case (-1): { // Mouse position has changed
+                    float DY = Mouse.getDY(); // Vertical change (delta)
                     // FIXME: Change to same math as horizontal look
+                    // Calculates new values for camera-looking-at-point (Y-axis)
                     if (centery < 10f && DY > 0) {
                         centery += DY * 0.005f;
                     } else if (centery > -10f && DY < 0) {
                         centery += DY * 0.005f;
                     }
 
-                    float DX = Mouse.getDX();
+                    float DX = Mouse.getDX(); // Horizontal change (delta)
+
+                    // Calculates new values for camera-looking-at-point (X-axis)
                     if (DX > 0) {
                         angle += 0.005f*DX;
                         lx = (float)sin(angle);
@@ -179,8 +188,7 @@ public class Test3D extends Game {
                             centery, centerx, centerz);
                     break;
                 }
-                default: {
-                    /* Click */
+                default: { // Mouse button was clicked
                     debug2("clicked mbutton=%d", event);
                     break;
                 }
@@ -242,6 +250,7 @@ public class Test3D extends Game {
     }
 }
 
+/** Enum for the different jumping states */
 enum Jumping {
     UP, DOWN, NONE
 }
