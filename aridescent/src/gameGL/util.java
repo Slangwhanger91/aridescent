@@ -6,18 +6,6 @@ import org.lwjgl.util.Renderable;
 import static org.lwjgl.opengl.GL11.*;
 
 public class util {
-    public static void draw2DOverlay(Renderable[] renderables, float right, float bottom) {
-        glPushMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, right, bottom, 0, -1f, 1f);
-        for (Renderable r: renderables) {
-            r.render();
-        }
-        glPopMatrix();
-    }
 
     public static void drawCube(float fromX, float toX,
                                 float fromY, float toY,

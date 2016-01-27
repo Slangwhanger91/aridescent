@@ -7,10 +7,10 @@ import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.TextureImpl;
 
 public class Text implements Renderable {
-    int xpos, ypos;
-    Font font;
-    String text;
-    Color color;
+    private int xpos, ypos;
+    private Font font;
+    private String text;
+    private Color color;
 
     public Text(String text, String fontName, int fontSize, int fontFace,
                 int xpos, int ypos, Color color) {

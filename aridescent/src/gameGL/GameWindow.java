@@ -31,7 +31,7 @@ public class GameWindow extends Game {
 		new GreenPlatform(500, 250);*/
 		//Enemy enemy = new Enemy();
 
-		Menu testMenu = new Menu();
+		Menu testMenu = new Menu(this);
 		setMenu(testMenu);
 		showMenu();
         /* Checks return value from menu to decide to start game or just exit program. */
