@@ -1,5 +1,6 @@
 package experiment;
 
+import gameGL.Game;
 import gameGL.constructs.Text;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -18,12 +19,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluLookAt;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
-public class Test3D {
-    private final float WIDTH = 800;
-    private final float HEIGHT = 600;
-    private Random random = new Random();
-    private float[][][] rcolor = new float[10][10][3];
-
+public class Test3D extends Game {
     private Float fovy = 45f;
     private Float aspect = 800f/600f;
     private Float zNear = 0.1f;
@@ -41,8 +37,7 @@ public class Test3D {
     private float angle = 0f;
     private Float lx = 0f;
     private Float lz = -1f;
-    private long fps = 0;
-    
+
     private Jumping jumpState = Jumping.NONE;
     private boolean jumping = false;
     private float jumpTo = 1.5f;
@@ -53,17 +48,16 @@ public class Test3D {
     private Renderable[] overlayObjects;
     // Make an "Updateable" for logic too, so only "registered" objects are "updated" (?)
 
+    private Random random = new Random();
+    private float[][][] rcolor = new float[10][10][3];
+
     public static void main(String[] args) {
-        try {
-            Display.setDisplayMode(new DisplayMode(800, 600));
-            Display.create();
-            new Test3D();
-        } catch (LWJGLException e) {
-            e.printStackTrace();
-        }
+        new Test3D(800, 600).run();
     }
 
-    public Test3D() {
+    public Test3D(int width, int height) {
+        super(width, height);
+
         System.out.println("Test3D");
         for (int i = 0; i < rcolor.length; i++) {
             for (int j = 0; j < rcolor[0].length; j++) {
@@ -75,16 +69,10 @@ public class Test3D {
 
         text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
         overlayObjects = new Renderable[]{text};
-        init();
-        loop();
+        run();
     }
 
-    public void exit() {
-        Display.destroy();
-        System.exit(0);
-    }
-
-    void init() {
+    protected void init() {
         Mouse.setGrabbed(true);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClearDepth(1.0f);
@@ -96,31 +84,7 @@ public class Test3D {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     }
 
-    void loop() {
-        long tick = 0;
-        long now = System.currentTimeMillis();
-        long old_tick = 0;
-
-        while (!Display.isCloseRequested()) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            if ((System.currentTimeMillis() - now) > 1000) {
-                fps = (tick - old_tick);
-                old_tick = tick;
-                now = System.currentTimeMillis();
-            }
-
-            logic();
-            draw();
-            poll();
-
-            Display.update();
-            Display.sync(100);
-            debug("tick=%d", tick);
-            tick++;
-        }
-    }
-
-    void draw() {
+    protected void render() {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         gluPerspective(fovy, aspect, zNear, zFar);
@@ -132,10 +96,10 @@ public class Test3D {
                 upx, upy, upz);
         drawCubes(10f, 10f, 1f);
         drawCubes(10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
-        draw2DOverlay(overlayObjects, WIDTH, HEIGHT);
+        draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
     }
 
-    void logic() {
+    protected void update() {
         text.setText(String.format("FPS: %d XY: (%f, %f)", fps, eyex, eyez));
         jumpLogic();
     }
@@ -166,10 +130,6 @@ public class Test3D {
         }
     }
 
-    enum Jumping {
-        UP, DOWN, NONE
-    }
-
     void drawCubes(float xtarget, float ztarget, float zfactor) {
         // TODO: Make into constructs.Cube with Cube.drawCubes(..) (?)
         for (float x = 0; x < xtarget; x += 0.5) {
@@ -187,7 +147,7 @@ public class Test3D {
     }
 
 
-    void poll() {
+    public void poll() {
         int eventCtr = 0;
         while (Mouse.next()) {
             int event = Mouse.getEventButton();
@@ -277,4 +237,8 @@ public class Test3D {
         }
         debug("poll() eventCtr=%d", eventCtr);
     }
+}
+
+enum Jumping {
+    UP, DOWN, NONE
 }
