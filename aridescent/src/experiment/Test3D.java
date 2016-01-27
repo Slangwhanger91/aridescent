@@ -6,8 +6,6 @@ import gameGL.constructs.Text;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.Renderable;
 import org.newdawn.slick.Color;
 
@@ -24,9 +22,9 @@ public class Test3D extends Game {
     private Float fovy = 45f;
     private Float aspect = 800f/600f;
     private Float zNear = 0.1f;
-    private Float zFar = 20f;
+    private Float zFar = 50f;
     private Float eyex = 5f;
-    private Float eyey = 1f;
+    private Float eyey = 2f;
     private Float eyez = -4f;
     private Float centerx = 0f;
     private Float centery = 0f;
@@ -41,9 +39,9 @@ public class Test3D extends Game {
 
     private Jumping jumpState = Jumping.NONE;
     private boolean jumping = false;
-    private float jumpTo = 1.5f;
-    private float jumpFrom = 1f;
-    private float jumpIncrement = 0.02f; // increment per frame for now
+    private float jumpFrom = eyey;
+    private float jumpTo = jumpFrom+1f;
+    private float jumpIncrement = 0.04f; // increment per frame for now
 
     private Text text;
     private Crosshair xhair;
@@ -101,7 +99,7 @@ public class Test3D extends Game {
         // Place the camera (player) and define where we're looking
         // eye = "player", center = point-being--looked-at
         gluLookAt(eyex, eyey, eyez,
-                eyex+lx, centery, eyez +lz,
+                eyex+lx, centery, eyez+lz,
                 upx, upy, upz);
 
         drawCubes(10f, 10f, 1f);
@@ -163,7 +161,7 @@ public class Test3D extends Game {
             switch(event) {
                 case (-1): { // Mouse position has changed
                     float DY = Mouse.getDY(); // Vertical change (delta)
-                    // FIXME: Change to same math as horizontal look
+                    // FIXME: Find some math for Y-axis movement (tan?)
                     // Calculates new values for camera-looking-at-point (Y-axis)
                     if (centery < 10f && DY > 0) {
                         centery += DY * 0.005f;
