@@ -7,9 +7,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.ARBVertexArrayObject;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.*;
 import org.lwjgl.util.Renderable;
 import org.newdawn.slick.Color;
 
@@ -59,20 +57,11 @@ public class Test3D extends Game {
     private float[][][] rcolor = new float[10][10][3];
 
     FloatBuffer fbuf;
-
-    static int createVBOID() {
-        if (GLContext.getCapabilities().GL_ARB_vertex_buffer_object) {
-            IntBuffer buffer = BufferUtils.createIntBuffer(1);
-            ARBVertexArrayObject.glGenVertexArrays(buffer);
-            return buffer.get(0);
-        }
-        return 0;
-    }
-
-    void vertexBufferData(int id, FloatBuffer buffer) {
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
-    }
+    private ByteBuffer indicesBuffer;
+    int vboID;
+    int count;
+    private int vaoID;
+    private int vboiID;
 
     void usage() {
         float[] ftest = {
@@ -85,6 +74,9 @@ public class Test3D extends Game {
                 0f, 1f, 1f,
                 1f, 0f, 1f,
         };
+        fbuf = BufferUtils.createFloatBuffer(ftest.length);
+        fbuf.put(ftest);
+        fbuf.flip();
 
         byte[] indices = {
                 0, 3, 5, 2,
@@ -94,47 +86,37 @@ public class Test3D extends Game {
                 0, 5, 6, 3,
                 2, 7, 1, 5,
         };
+        count = indices.length;
+        indicesBuffer = BufferUtils.createByteBuffer(count);
+        indicesBuffer.put(indices);
+        indicesBuffer.flip();
 
-        int id = createVBOID();
-        float[] farray = new float[8*3];
-        fbuf = BufferUtils.createFloatBuffer(farray.length*3);
-        fbuf.put(farray);
+        vaoID = GL30.glGenVertexArrays();
 
-        int farray_index = 0;
-        for (int i = 0; i < ftest.length; i++) {
-            if (!isIn(ftest[i], farray)) {
-                farray[farray_index] = ftest[i][0];
-                farray[farray_index+1] = ftest[i][1];
-                farray[farray_index+2] = ftest[i][2];
-                farray_index += 3;
-            }
-        }
+        GL30.glBindVertexArray(vaoID);
 
-        int count = 0;
-        for (float f: farray) {
-            System.out.print(count++);
-            System.out.print(" ");
-            System.out.println(f);
-        }
+        vboID = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, fbuf, GL15.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
-        vertexBufferData(id, fbuf);
-    }
+        GL30.glBindVertexArray(0);
 
-    boolean isIn(float[] floats, float[] fbuf) {
-        for (int i = 0; i < fbuf.length; i+=3) {
-            if (floats[0] == fbuf[i] &&
-                    floats[1] == fbuf[i+1] &&
-                    floats[2] == fbuf[i+2]) {
-                return true;
-            }
-        }
-        return false;
+        vboiID = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
+        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     void drawCube() {
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(24*3, 3, fbuf);
-        glDraw
+        GL30.glBindVertexArray(vaoID);
+        GL20.glEnableVertexAttribArray(0);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
+        glDrawElements(GL_QUADS, count, GL11.GL_UNSIGNED_BYTE, 0);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+        GL20.glDisableVertexAttribArray(0);
+        GL30.glBindVertexArray(0);
     }
 
     public static void drawCube(float fromX, float toX,
@@ -179,6 +161,15 @@ public class Test3D extends Game {
         } catch (LWJGLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void exit() {
+        GL15.glDeleteBuffers(vboID);
+        GL15.glDeleteBuffers(vboiID);
+        GL30.glDeleteVertexArrays(vaoID);
+        Display.destroy();
+        System.exit(0);
     }
 
     public Test3D(int width, int height) throws LWJGLException {
@@ -228,6 +219,7 @@ public class Test3D extends Game {
 
         //drawCubes(10f, 10f, 1f);
         //drawCubes(10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
+        drawCube();
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
     }
 
