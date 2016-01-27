@@ -29,7 +29,7 @@ public class Test3D extends Game {
     private Float eyey = 1f;
     private Float eyez = -4f;
     private Float centerx = 0f;
-    private Float centery = 0f;
+    private Float centery = 2f;
     private Float centerz = 0f;
     private Float upx = 0f;
     private Float upy = 1f;
