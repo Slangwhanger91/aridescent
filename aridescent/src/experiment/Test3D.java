@@ -27,9 +27,9 @@ public class Test3D extends Game {
     private Float aspect = 800f/600f;
     private Float zNear = 0.1f;
     private Float zFar = 50f;
-    private Float eyex = 5f;
+    private Float eyex = 4.95f;
     private Float eyey = 2f;
-    private Float eyez = -4f;
+    private Float eyez = 39.45f;
     private Float centerx = 0f;
     private Float centery = 2f;
     private Float centerz = 0f;
@@ -119,7 +119,9 @@ public class Test3D extends Game {
                 eyex+lx, centery, eyez+lz,
                 upx, upy, upz);
 
-        drawTexturedCubes(dirt, 10f, 10f, 1f);
+        drawRotatedTexturedCubes(Rotation.X_CW90, 0.5f, 0.5f, -0.5f, dirt, 10f, 10f, 1f);
+        drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 0f, dirt, 10f, 10f, 1f);
+        // drawRotatedTexturedCubes(Rotation.X_CW180, dirt, 10f, 10f, 1f);
         drawTexturedCubes(rock, 10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
     }
@@ -172,6 +174,7 @@ public class Test3D extends Game {
 
     void drawTexturedCubes(Texture tex, float xtarget, float ztarget, float zfactor) {
         // TODO: Make into constructs.Cube with Cube.drawCubes(..) (?)
+        glPushMatrix();
         for (float x = 0; x < xtarget; x += 0.5) {
             glTranslatef(0.5f, 0f, -(ztarget*zfactor)); // 1f = area of cubes
             for (float z = 0; z < ztarget; z += 0.5) {
@@ -181,6 +184,44 @@ public class Test3D extends Game {
                 drawTexturedCube(tex, 0f, 0.5f, 0f, 0.5f, 0f, 0.5f);
             }
         }
+        glPopMatrix();
+    }
+
+    enum Rotation {
+        NONE, X_CW90, X_CW180, X_CW270
+    }
+
+    void setRotation(Rotation rotation) {
+        switch(rotation) {
+            case NONE:
+                break;
+            case X_CW90:
+                glRotatef(90f, 1f, 0f, 0f);
+                break;
+            case X_CW180:
+                glRotatef(180f, 1f, 0f, 0f);
+                break;
+            case X_CW270:
+                glRotatef(270f, 1f, 0f, 0f);
+                break;
+        }
+    }
+
+    void drawRotatedTexturedCubes(Rotation rotation, float offsetX, float offsetY, float offsetZ, Texture tex, float xtarget, float ztarget, float zfactor) {
+        // TODO: Make into constructs.Cube with Cube.drawCubes(..) (?)
+        glPushMatrix();
+        setRotation(rotation);
+        for (float x = 0; x < xtarget; x += 0.5) {
+            glTranslatef(0.5f, 0f, -(ztarget*zfactor)); // 1f = area of cubes
+            for (float z = 0; z < ztarget; z += 0.5) {
+                glTranslatef(0f, 0f, 0.5f);
+                glColor3f(1f, 1f, 1f);
+                //setRandomColor((int)x, (int)z);
+                //drawTexturedCube(tex, 0f, 0.5f, 0f, 0.5f, 0f, 0.5f);
+                drawTexturedCube(tex, offsetX+0f, offsetX+0.5f, offsetY+0f, offsetY+0.5f, offsetZ+0f, offsetZ+0.5f);
+            }
+        }
+        glPopMatrix();
     }
 
     void setRandomColor(int x, int z) {
@@ -259,13 +300,16 @@ public class Test3D extends Game {
             }
             eventCtr++;
         }
+        float ws_speed;
+        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) ws_speed = 0.5f;
+        else ws_speed = 0.1f;
         if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-            eyex += lx * 0.1f;
-            eyez += lz * 0.1f;
+            eyex += lx * ws_speed;
+            eyez += lz * ws_speed;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-            eyex -= lx * 0.1f;
-            eyez -= lz * 0.1f;
+            eyex -= lx * ws_speed;
+            eyez -= lz * ws_speed;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
             angle += 0.05f;

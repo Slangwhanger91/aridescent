@@ -143,6 +143,7 @@ public abstract class Game {
         for (Renderable r: renderables) {
             r.render();
         }
+        glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
     }
 }
