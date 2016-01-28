@@ -14,7 +14,6 @@ import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
 import java.io.IOException;
-import java.util.Random;
 
 import static aridescent.engine.util.*;
 import static java.lang.Math.cos;
@@ -34,9 +33,6 @@ public class Test3D extends Game {
     private Float centerx = 0f;
     private Float centery = 2f;
     private Float centerz = 0f;
-    private Float upx = 0f;
-    private Float upy = 1f;
-    private Float upz = 0f;
 
     private float angle = 0f;
     private Float lx = 0f;
@@ -55,9 +51,6 @@ public class Test3D extends Game {
     private Renderable[] overlayObjectsF1;
     // TODO: Make an "Updateable" for logic too, so only "registered" objects are "updated" (?)
 
-    private Random random = new Random();
-    private float[][][] rcolor = new float[10][10][3];
-
     Texture dirt;
     Texture rock;
 
@@ -71,16 +64,7 @@ public class Test3D extends Game {
 
     public Test3D(int width, int height) throws LWJGLException {
         super(width, height);
-
-        // Just create a few random colors for the cubes
         System.out.println("Test3D");
-        for (int i = 0; i < rcolor.length; i++) {
-            for (int j = 0; j < rcolor[0].length; j++) {
-                rcolor[i][j][0] = random.nextFloat();
-                rcolor[i][j][1] = random.nextFloat();
-                rcolor[i][j][2] = random.nextFloat();
-            }
-        }
 
         // Create overlay objects, drawn in as 2D layer later
         text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
@@ -123,15 +107,15 @@ public class Test3D extends Game {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        // Place the camera (player) and define where we're looking
+        // "Place" the camera (player) and define where we're "looking"
         // eye = "player", center = point-being-looked-at
         gluLookAt(eyex, eyey, eyez,
                 eyex+lx, centery, eyez+lz,
-                upx, upy, upz);
+                0f, 1f, 0f);
 
         drawRotatedTexturedCubes(Rotation.X_CW90, 0.5f, 0.5f, -0.5f, dirt, 10f, 10f, 1f); // wall
         drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 0f, dirt, 10f, 10f, 1f); // flat platform
-        drawTexturedCubes(rock, 10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
+        drawRotatedTexturedCubes(Rotation.NONE, 0f, 0f, 0.5f, rock, 10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
         drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 110f, dirt, 10f, 10f, 1f); // flat platform (z:+110f)
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
@@ -175,33 +159,6 @@ public class Test3D extends Game {
         }
     }
 
-    void drawCubes(float xtarget, float ztarget, float zfactor) {
-        // TODO: Make into constructs.Cube with Cube.drawCubes(..) (?)
-        for (float x = 0; x < xtarget; x += 0.5) {
-            glTranslatef(0.5f, 0f, -(ztarget*zfactor)); // 1f = area of cubes
-            for (float z = 0; z < ztarget; z += 0.5) {
-                glTranslatef(0f, 0f, 0.5f);
-                setRandomColor((int)x, (int)z);
-                drawCube(0f, 0.5f, -0.5f, 0.5f, 0f, 0.5f);
-            }
-        }
-    }
-
-    void drawTexturedCubes(Texture tex, float xtarget, float ztarget, float zfactor) {
-        // TODO: Make into constructs.Cube with Cube.drawCubes(..) (?)
-        glPushMatrix();
-        for (float x = 0; x < xtarget; x += 0.5) {
-            glTranslatef(0.5f, 0f, -(ztarget*zfactor)); // 1f = area of cubes
-            for (float z = 0; z < ztarget; z += 0.5) {
-                glTranslatef(0f, 0f, 0.5f);
-                glColor3f(1f, 1f, 1f);
-                //setRandomColor((int)x, (int)z);
-                drawTexturedCube(tex, 0f, 0.5f, 0f, 0.5f, 0f, 0.5f);
-            }
-        }
-        glPopMatrix();
-    }
-
     enum Rotation {
         NONE, X_CW90, X_CW180, X_CW270
     }
@@ -227,24 +184,17 @@ public class Test3D extends Game {
         glPushMatrix();
         setRotation(rotation);
         for (float x = 0; x < xtarget; x += 0.5) {
-            glTranslatef(0.5f, 0f, -(ztarget*zfactor)); // 1f = area of cubes
+            glTranslatef(0.5f, 0f, -(ztarget*zfactor));
             for (float z = 0; z < ztarget; z += 0.5) {
                 glTranslatef(0f, 0f, 0.5f);
                 glColor3f(1f, 1f, 1f);
-                //setRandomColor((int)x, (int)z);
-                //drawTexturedCube(tex, 0f, 0.5f, 0f, 0.5f, 0f, 0.5f);
                 drawTexturedCube(tex, offsetX+0f, offsetX+0.5f, offsetY+0f, offsetY+0.5f, offsetZ+0f, offsetZ+0.5f);
             }
         }
         glPopMatrix();
     }
 
-    void setRandomColor(int x, int z) {
-        glColor3f(rcolor[x][z][0], rcolor[x][z][1], rcolor[x][z][2]);
-    }
-
     public void poll() {
-        int eventCtr = 0;
         while (Mouse.next()) {
             int event = Mouse.getEventButton();
             switch(event) {
@@ -280,7 +230,6 @@ public class Test3D extends Game {
                     break;
                 }
             }
-            eventCtr++;
         }
 
         while (Keyboard.next()) {
@@ -313,7 +262,6 @@ public class Test3D extends Game {
                     }
                 }
             }
-            eventCtr++;
         }
         float ws_speed;
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) ws_speed = 0.5f;
@@ -336,7 +284,6 @@ public class Test3D extends Game {
             lx = (float)sin(angle);
             lz = (float)-cos(angle);
         }
-        debug("poll() eventCtr=%d", eventCtr);
     }
 }
 
