@@ -124,15 +124,15 @@ public class Test3D extends Game {
         glLoadIdentity();
 
         // Place the camera (player) and define where we're looking
-        // eye = "player", center = point-being--looked-at
+        // eye = "player", center = point-being-looked-at
         gluLookAt(eyex, eyey, eyez,
                 eyex+lx, centery, eyez+lz,
                 upx, upy, upz);
 
-        drawRotatedTexturedCubes(Rotation.X_CW90, 0.5f, 0.5f, -0.5f, dirt, 10f, 10f, 1f);
-        drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 0f, dirt, 10f, 10f, 1f);
-        // drawRotatedTexturedCubes(Rotation.X_CW180, dirt, 10f, 10f, 1f);
+        drawRotatedTexturedCubes(Rotation.X_CW90, 0.5f, 0.5f, -0.5f, dirt, 10f, 10f, 1f); // wall
+        drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 0f, dirt, 10f, 10f, 1f); // flat platform
         drawTexturedCubes(rock, 10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
+        drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 110f, dirt, 10f, 10f, 1f); // flat platform (z:+110f)
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
         if (Keyboard.isKeyDown(Keyboard.KEY_F1)) {
