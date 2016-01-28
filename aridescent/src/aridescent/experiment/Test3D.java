@@ -220,9 +220,6 @@ public class Test3D extends Game {
                         lx = (float)sin(angle);
                         lz = (float)-cos(angle);
                     }
-
-                    debug3("centery=%f, centerx=%f, centerz=%f",
-                            centery, centerx, centerz);
                     break;
                 }
                 default: { // Mouse button was clicked
