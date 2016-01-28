@@ -2,6 +2,8 @@ package gameGL;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Renderable;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureImpl;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -41,6 +43,68 @@ public class util {
         glVertex3f(toX, toY, toZ);
         glVertex3f(toX, toY, fromZ);
         glEnd();
+    }
+
+    public static void drawTexturedCube(Texture tex, float fromX, float toX,
+                                        float fromY, float toY,
+                                        float fromZ, float toZ) {
+        tex.bind();
+        glBegin(GL_QUADS); // FIXME: Replace with GL_TRIANGLES
+        glTexCoord2f(0, 0);
+        glVertex3f(fromX, fromY, fromZ);
+        glTexCoord2f(0, tex.getHeight());
+        glVertex3f(fromX, toY, fromZ);
+        glTexCoord2f(tex.getWidth(), tex.getHeight());
+        glVertex3f(toX, toY, fromZ);
+        glTexCoord2f(tex.getWidth(), 0);
+        glVertex3f(toX, fromY, fromZ);
+
+        glTexCoord2f(0, 0);
+        glVertex3f(fromX, fromY, toZ);
+        glTexCoord2f(0, tex.getHeight());
+        glVertex3f(fromX, toY, toZ);
+        glTexCoord2f(tex.getWidth(), tex.getHeight());
+        glVertex3f(toX, toY, toZ);
+        glTexCoord2f(tex.getWidth(), 0);
+        glVertex3f(toX, fromY, toZ);
+
+        glTexCoord2f(0, 0);
+        glVertex3f(fromX, fromY, fromZ);
+        glTexCoord2f(0, tex.getHeight());
+        glVertex3f(fromX, fromY, toZ);
+        glTexCoord2f(tex.getWidth(), tex.getHeight());
+        glVertex3f(toX, fromY, toZ);
+        glTexCoord2f(tex.getWidth(), 0);
+        glVertex3f(toX, fromY, fromZ);
+
+        glTexCoord2f(0, 0);
+        glVertex3f(fromX, toY, fromZ);
+        glTexCoord2f(0, tex.getHeight());
+        glVertex3f(fromX, toY, toZ);
+        glTexCoord2f(tex.getWidth(), tex.getHeight());
+        glVertex3f(toX, toY, toZ);
+        glTexCoord2f(tex.getWidth(), 0);
+        glVertex3f(toX, toY, fromZ);
+
+        glTexCoord2f(0, 0);
+        glVertex3f(fromX, fromY, fromZ);
+        glTexCoord2f(0, tex.getHeight());
+        glVertex3f(fromX, fromY, toZ);
+        glTexCoord2f(tex.getWidth(), tex.getHeight());
+        glVertex3f(fromX, toY, toZ);
+        glTexCoord2f(tex.getWidth(), 0);
+        glVertex3f(fromX, toY, fromZ);
+
+        glTexCoord2f(0, 0);
+        glVertex3f(toX, fromY, fromZ);
+        glTexCoord2f(0, tex.getHeight());
+        glVertex3f(toX, fromY, toZ);
+        glTexCoord2f(tex.getWidth(), tex.getHeight());
+        glVertex3f(toX, toY, toZ);
+        glTexCoord2f(tex.getWidth(), 0);
+        glVertex3f(toX, toY, fromZ);
+        glEnd();
+        TextureImpl.unbind();
     }
 
     public static void debug(String format, Object... objs) {

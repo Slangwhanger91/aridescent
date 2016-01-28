@@ -8,7 +8,11 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.Renderable;
 import org.newdawn.slick.Color;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
 
+import java.io.IOException;
 import java.util.Random;
 
 import static gameGL.util.*;
@@ -27,7 +31,7 @@ public class Test3D extends Game {
     private Float eyey = 2f;
     private Float eyez = -4f;
     private Float centerx = 0f;
-    private Float centery = 0f;
+    private Float centery = 2f;
     private Float centerz = 0f;
     private Float upx = 0f;
     private Float upy = 1f;
@@ -50,6 +54,9 @@ public class Test3D extends Game {
 
     private Random random = new Random();
     private float[][][] rcolor = new float[10][10][3];
+
+    Texture dirt;
+    Texture rock;
 
     public static void main(String[] args) {
         try {
@@ -76,6 +83,16 @@ public class Test3D extends Game {
         text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
         xhair = new Crosshair(10f, DISPLAY_WIDTH, DISPLAY_HEIGHT, Color.red);
         overlayObjects = new Renderable[]{text, xhair};
+
+        // Texture loading
+        String fileName = "dirt.png";
+        try {
+            dirt = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream(fileName));
+            System.out.printf("%s: width=%d, height=%d\n", fileName, dirt.getImageWidth(), dirt.getImageHeight());
+            rock = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("rock.png"));
+            System.out.printf("%s: width=%d, height=%d\n", "rock.png", rock.getImageWidth(), rock.getImageHeight());
+        }
+        catch(IOException e) { e.printStackTrace(); }
     }
 
     protected void init() {
@@ -102,13 +119,16 @@ public class Test3D extends Game {
                 eyex+lx, centery, eyez+lz,
                 upx, upy, upz);
 
-        drawCubes(10f, 10f, 1f);
-        drawCubes(10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
+        drawTexturedCubes(dirt, 10f, 10f, 1f);
+        drawTexturedCubes(rock, 10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
     }
 
     protected void update() {
-        text.setText(String.format("FPS: %d XY: (%f, %f)", fps, eyex, eyez));
+        text.setText(
+                String.format("FPS: %d pos: (%.2f, %.2f, %.2f) " +
+                        "look: (%.2f, %.2f, %.2f)",
+                fps, eyex, eyey, eyez, centerx+lx, centery, centerz+lz));
         jumpLogic();
     }
 
@@ -146,6 +166,19 @@ public class Test3D extends Game {
                 glTranslatef(0f, 0f, 0.5f);
                 setRandomColor((int)x, (int)z);
                 drawCube(0f, 0.5f, -0.5f, 0.5f, 0f, 0.5f);
+            }
+        }
+    }
+
+    void drawTexturedCubes(Texture tex, float xtarget, float ztarget, float zfactor) {
+        // TODO: Make into constructs.Cube with Cube.drawCubes(..) (?)
+        for (float x = 0; x < xtarget; x += 0.5) {
+            glTranslatef(0.5f, 0f, -(ztarget*zfactor)); // 1f = area of cubes
+            for (float z = 0; z < ztarget; z += 0.5) {
+                glTranslatef(0f, 0f, 0.5f);
+                glColor3f(1f, 1f, 1f);
+                //setRandomColor((int)x, (int)z);
+                drawTexturedCube(tex, 0f, 0.5f, 0f, 0.5f, 0f, 0.5f);
             }
         }
     }
