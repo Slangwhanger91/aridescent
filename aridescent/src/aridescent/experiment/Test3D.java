@@ -1,5 +1,6 @@
 package aridescent.experiment;
 
+import aridescent.constructs.MultilineText;
 import aridescent.engine.Game;
 import aridescent.constructs.Crosshair;
 import aridescent.constructs.Text;
@@ -48,8 +49,10 @@ public class Test3D extends Game {
     private float jumpIncrement = 0.04f; // increment per frame for now
 
     private Text text;
+    private MultilineText f1text;
     private Crosshair xhair;
     private Renderable[] overlayObjects;
+    private Renderable[] overlayObjectsF1;
     // TODO: Make an "Updateable" for logic too, so only "registered" objects are "updated" (?)
 
     private Random random = new Random();
@@ -81,8 +84,15 @@ public class Test3D extends Game {
 
         // Create overlay objects, drawn in as 2D layer later
         text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
+        String f1string =
+                "Press G to ungrab mouse\n" +
+                "Press space to jump\n" +
+                "Press F1 for this help menu\n" +
+                "Hold shift for faster movement";
+        f1text = new MultilineText(f1string, "Arial", 24, 0, DISPLAY_HEIGHT_INT/2, (DISPLAY_HEIGHT_INT/2)-(24*4), Color.cyan);
         xhair = new Crosshair(10f, DISPLAY_WIDTH, DISPLAY_HEIGHT, Color.red);
         overlayObjects = new Renderable[]{text, xhair};
+        overlayObjectsF1 = new Renderable[]{f1text};
 
         // Texture loading
         String fileName = "dirt.png";
@@ -124,6 +134,11 @@ public class Test3D extends Game {
         // drawRotatedTexturedCubes(Rotation.X_CW180, dirt, 10f, 10f, 1f);
         drawTexturedCubes(rock, 10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
+        if (Keyboard.isKeyDown(Keyboard.KEY_F1)) {
+            // FIXME: Better handling of when-held-overlay
+            draw2DOverlay(overlayObjectsF1, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        }
     }
 
     protected void update() {
