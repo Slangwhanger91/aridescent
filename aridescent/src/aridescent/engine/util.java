@@ -1,4 +1,4 @@
-package gameGL;
+package aridescent.engine;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.Renderable;

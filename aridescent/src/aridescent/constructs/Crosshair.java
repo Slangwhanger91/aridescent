@@ -1,4 +1,4 @@
-package gameGL.constructs;
+package aridescent.constructs;
 
 import org.lwjgl.util.Renderable;
 import org.newdawn.slick.Color;

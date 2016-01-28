@@ -1,6 +1,6 @@
-package experiment;
+package aridescent.experiment;
 
-import gameGL.constructs.Text;
+import aridescent.constructs.Text;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -8,7 +8,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.newdawn.slick.Color;
 
-import static gameGL.util.debug;
+import static aridescent.engine.util.debug;
 import static org.lwjgl.opengl.GL11.*;
 
 public class ViewportTestAperte {

@@ -1,8 +1,8 @@
-package experiment;
+package aridescent.experiment;
 
-import gameGL.Game;
-import gameGL.constructs.Crosshair;
-import gameGL.constructs.Text;
+import aridescent.engine.Game;
+import aridescent.constructs.Crosshair;
+import aridescent.constructs.Text;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -15,7 +15,7 @@ import org.newdawn.slick.util.ResourceLoader;
 import java.io.IOException;
 import java.util.Random;
 
-import static gameGL.util.*;
+import static aridescent.engine.util.*;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static org.lwjgl.opengl.GL11.*;

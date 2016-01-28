@@ -1,11 +1,10 @@
-package gameGL;
+package aridescent.engine;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.Renderable;
 
-import static gameGL.util.debug;
 import static org.lwjgl.opengl.GL11.*;
 
 /** Base class for making a game. Comes with its own loop. */
@@ -71,7 +70,7 @@ public abstract class Game {
 
             Display.update();
             Display.sync(fpsTarget);
-            debug("tick=%d", tick);
+            util.debug("tick=%d", tick);
             tick++;
         }
     }

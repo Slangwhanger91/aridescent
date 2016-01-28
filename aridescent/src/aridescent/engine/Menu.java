@@ -1,15 +1,13 @@
-package gameGL;
+package aridescent.engine;
 
-import gameGL.constructs.Image;
-import gameGL.constructs.Line;
-import gameGL.constructs.Rectangle;
-import gameGL.constructs.Text;
+import aridescent.constructs.Image;
+import aridescent.constructs.Line;
+import aridescent.constructs.Rectangle;
+import aridescent.constructs.Text;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.Renderable;
-
-import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
 
