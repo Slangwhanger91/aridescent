@@ -91,9 +91,9 @@ public class Test3D extends Game {
         indicesBuffer.put(indices);
         indicesBuffer.flip();
 
-        vaoID = GL30.glGenVertexArrays();
+        //vaoID = GL30.glGenVertexArrays();
 
-        GL30.glBindVertexArray(vaoID);
+        //GL30.glBindVertexArray(vaoID);
 
         vboID = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
@@ -101,7 +101,7 @@ public class Test3D extends Game {
         GL20.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
-        GL30.glBindVertexArray(0);
+        //GL30.glBindVertexArray(0);
 
         vboiID = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
@@ -110,13 +110,13 @@ public class Test3D extends Game {
     }
 
     void drawCube() {
-        GL30.glBindVertexArray(vaoID);
+        //GL30.glBindVertexArray(vaoID);
         GL20.glEnableVertexAttribArray(0);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
         glDrawElements(GL_QUADS, count, GL11.GL_UNSIGNED_BYTE, 0);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
         GL20.glDisableVertexAttribArray(0);
-        GL30.glBindVertexArray(0);
+        //GL30.glBindVertexArray(0);
     }
 
     public static void drawCube(float fromX, float toX,
@@ -167,7 +167,7 @@ public class Test3D extends Game {
     protected void exit() {
         GL15.glDeleteBuffers(vboID);
         GL15.glDeleteBuffers(vboiID);
-        GL30.glDeleteVertexArrays(vaoID);
+        //GL30.glDeleteVertexArrays(vaoID);
         Display.destroy();
         System.exit(0);
     }
