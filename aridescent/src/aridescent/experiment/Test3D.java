@@ -56,10 +56,8 @@ public class Test3D extends Game {
     Texture dirt;
     Texture rock;
 
-    /*
     private Random random = new Random();
     private Renderable[] renderables;
-    */
 
     public static void main(String[] args) {
         try {
@@ -96,7 +94,6 @@ public class Test3D extends Game {
         catch(IOException e) { e.printStackTrace(); }
 
         // Randomize sphere locations
-        /*
         renderables = new Renderable[25];
         Sphere.offsetX = 10f;
         Sphere.offsetY = 0f;
@@ -112,7 +109,6 @@ public class Test3D extends Game {
                         random.nextFloat(), 10, 10);
             }
         }
-        */
 
         //setFPS(1500); // test fps with higher number to check performance drops
     }
@@ -121,8 +117,9 @@ public class Test3D extends Game {
         Mouse.setGrabbed(true); // Grab mouse for 1st person view
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glEnable(GL_DEPTH_TEST); // enables proper display of objects-infront-of-other-objects
-        glDepthFunc(GL_LESS); // defines the function used to derive ^
+        //glDepthFunc(GL_LESS); // defines the function used to derive ^
         glEnable(GL_BLEND); // Neccesary for e.g. text display
+
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // ^ same
         //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     }
@@ -141,12 +138,12 @@ public class Test3D extends Game {
                 eyex+lx, centery, eyez+lz,
                 0f, 1f, 0f);
 
-        //Sphere.renderSpheres(renderables);
+        Sphere.renderSpheres(renderables);
 
         drawRotatedTexturedCubes(Rotation.X_CW90, 0.5f, 0.5f, -0.5f, dirt, 10f, 10f, 1f); // wall
         drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 0f, dirt, 10f, 10f, 1f); // flat platform
         drawRotatedTexturedCubes(Rotation.NONE, 0f, 0f, 0.5f, rock, 10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
-        drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 110f, dirt, 10f, 10f, 1f); // flat platform (z:+110f)
+        drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 111f, dirt, 10f, 10f, 1f); // flat platform
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
         if (Keyboard.isKeyDown(Keyboard.KEY_F1)) {
@@ -209,7 +206,8 @@ public class Test3D extends Game {
         }
     }
 
-    void drawRotatedTexturedCubes(Rotation rotation, float offsetX, float offsetY, float offsetZ, Texture tex, float xtarget, float ztarget, float zfactor) {
+    void drawRotatedTexturedCubes(Rotation rotation, float offsetX, float offsetY, float offsetZ,
+                                  Texture tex, float xtarget, float ztarget, float zfactor) {
         // TODO: Make into constructs.Cube with Cube.drawCubes(..) (?)
         glPushMatrix();
         setRotation(rotation);

@@ -105,7 +105,7 @@ public class Menu {
             poll();
 
             Display.update();
-            Display.sync(30);
+            Display.sync(60);
             util.debug("tick=%d", tick);
             tick++;
         }

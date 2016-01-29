@@ -137,11 +137,13 @@ public abstract class Game {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
         glLoadIdentity();
         glOrtho(0, right, bottom, 1, -1f, 1f); // Change view to 2D alike before rendering objects
         for (Renderable r: renderables) {
             r.render();
         }
+        glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
     }

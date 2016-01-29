@@ -8,6 +8,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 
 import aridescent.constructs.platforms.*;
+import org.newdawn.slick.opengl.TextureImpl;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -28,11 +29,6 @@ public class Game2D extends Game {
 
 		player = new Player();
 		Platform.createMaxPlatforms();
-		/*new GreenPlatform(100, 60);
-		new GreenPlatform(200, 100);
-		new GreenPlatform(300, 150);
-		new GreenPlatform(400, 200);
-		new GreenPlatform(500, 250);*/
 		//Enemy enemy = new Enemy();
 
 		Menu testMenu = new Menu(this);
@@ -70,12 +66,12 @@ public class Game2D extends Game {
 	protected void init() {
 		// Modify projection Matrix
 		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
+		//glLoadIdentity();
 		glOrtho(0, 640, 0, 480, -1, 1);
 
 		// Modify modelview matrix
 		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		//glLoadIdentity();
 	}
 
 	private void drawBackground(){
@@ -94,30 +90,29 @@ public class Game2D extends Game {
 		glEnd();
 
 		// Ground
-		
+
+		glPushMatrix();
+		glTranslatef(0f, -(float)CameraPosition.getPosition_y(), 0f);
 		glBegin(GL_QUADS);
 
 		glColor3d(0.6, 0.2, 0.1);
-		glVertex2d(0, 0 - CameraPosition.getPosition_y());
-		glVertex2d(640, 0 - CameraPosition.getPosition_y());
+		glVertex2d(0, 0);
+		glVertex2d(640, 0);
 
-		glVertex2d(640, 32 - CameraPosition.getPosition_y());
-		glVertex2d(0, 32 - CameraPosition.getPosition_y());
-
-		glEnd();
+		glVertex2d(640, 32);
+		glVertex2d(0, 32);
 
 		// Grass
-
-		glBegin(GL_QUADS);
-
 		glColor3d(0.2, 0.8, 0.2);
-		glVertex2d(0, 25 - CameraPosition.getPosition_y());
-		glVertex2d(640, 25 - CameraPosition.getPosition_y());
+		glVertex2d(0, 25);
+		glVertex2d(640, 25);
 
-		glVertex2d(640, 32 - CameraPosition.getPosition_y());
-		glVertex2d(0, 32 - CameraPosition.getPosition_y());
+		glVertex2d(640, 32);
+		glVertex2d(0, 32);
 
 		glEnd();
+
+		glPopMatrix();
 
 	}
 
