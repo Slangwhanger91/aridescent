@@ -1,6 +1,7 @@
 package aridescent.experiment;
 
 import aridescent.constructs.MultilineText;
+import aridescent.constructs.Sphere;
 import aridescent.engine.Game;
 import aridescent.constructs.Crosshair;
 import aridescent.constructs.Text;
@@ -14,6 +15,7 @@ import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
 import java.io.IOException;
+import java.util.Random;
 
 import static aridescent.engine.util.*;
 import static java.lang.Math.cos;
@@ -54,6 +56,11 @@ public class Test3D extends Game {
     Texture dirt;
     Texture rock;
 
+    /*
+    private Random random = new Random();
+    private Renderable[] renderables;
+    */
+
     public static void main(String[] args) {
         try {
             new Test3D(800, 600).run();
@@ -87,6 +94,27 @@ public class Test3D extends Game {
             System.out.printf("%s: width=%d, height=%d\n", "rock.png", rock.getImageWidth(), rock.getImageHeight());
         }
         catch(IOException e) { e.printStackTrace(); }
+
+        // Randomize sphere locations
+        /*
+        renderables = new Renderable[25];
+        Sphere.offsetX = 10f;
+        Sphere.offsetY = 0f;
+        Sphere.offsetZ = 10f;
+        for (int i = 0; i < 25; i++) {
+            if (random.nextFloat() >= 0.5f) {
+                renderables[i] = new Sphere((random.nextFloat() * 2f),
+                        (random.nextFloat() + 2f), (random.nextFloat() * 2f),
+                        random.nextFloat(), 10, 10);
+            } else {
+                renderables[i] = new Sphere(-(random.nextFloat() * 2f),
+                        -(random.nextFloat() * 2f), -(random.nextFloat() * 2f),
+                        random.nextFloat(), 10, 10);
+            }
+        }
+        */
+
+        //setFPS(1500); // test fps with higher number to check performance drops
     }
 
     protected void init() {
@@ -112,6 +140,8 @@ public class Test3D extends Game {
         gluLookAt(eyex, eyey, eyez,
                 eyex+lx, centery, eyez+lz,
                 0f, 1f, 0f);
+
+        //Sphere.renderSpheres(renderables);
 
         drawRotatedTexturedCubes(Rotation.X_CW90, 0.5f, 0.5f, -0.5f, dirt, 10f, 10f, 1f); // wall
         drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 0f, dirt, 10f, 10f, 1f); // flat platform
