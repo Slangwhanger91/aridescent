@@ -115,7 +115,7 @@ public class Test3D extends Game {
             }
         }
         floatBuffer = BufferUtils.createFloatBuffer(4);
-        colorBuffer.put(new float[] {0f, .5f, .5f, 1f});
+        colorBuffer.put(new float[] {0f, .9f, .9f, 1f});
         colorBuffer.flip();
         //setFPS(1500); // test fps with higher number to check performance drops
     }
@@ -154,7 +154,11 @@ public class Test3D extends Game {
 
         Sphere.renderSpheres(renderables);
 
-        drawRotatedTexturedCubes(Rotation.X_CW90, 0.5f, 0.5f, -0.5f, dirt, 10f, 10f, 1f); // wall
+        //drawRotatedTexturedCubes(Rotation.X_CW90, 0.5f, 0.5f, -0.5f, dirt, 10f, 10f, 1f); // wall
+        drawCubePlane(0f, 0f, 0f,
+                1f, 0f, 0f,
+                0f, 1f, 0f,
+                dirt, 10, 10);
         drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 0f, dirt, 10f, 10f, 1f); // flat platform
         drawRotatedTexturedCubes(Rotation.NONE, 0f, 0f, 0.5f, rock, 10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
         drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 111f, dirt, 10f, 10f, 1f); // flat platform
@@ -176,7 +180,7 @@ public class Test3D extends Game {
                 fps, eyex, eyey, eyez, centerx+lx, centery, centerz+lz));
         jumpLogic();
         floatBuffer.clear();
-        floatBuffer.put(new float[]{eyex, eyey, eyez, 1.0f});
+        floatBuffer.put(new float[]{eyex+lx, centery, eyez+lz, 1.0f});
         floatBuffer.flip();
     }
 
@@ -224,6 +228,24 @@ public class Test3D extends Game {
                 glRotatef(270f, 1f, 0f, 0f);
                 break;
         }
+    }
+
+    void drawCubePlane(float offsetX, float offsetY, float offsetZ,
+                       float rowIncrementX, float rowIncrementY, float rowIncrementZ,
+                       float columnIncrementX, float columnIncrementY, float columnIncrementZ,
+                       Texture tex, int countRow, int countColumn) {
+        glPushMatrix();
+        for (int i = 0; i < countRow; i++) {
+            glTranslatef(rowIncrementX, rowIncrementY, rowIncrementZ);
+            glPushMatrix();
+            for (int j = 0; j < countColumn; j++) {
+                glTranslatef(columnIncrementX, columnIncrementY, columnIncrementZ);
+                glColor3f(1f, 1f, 1f);
+                drawTexturedCube(tex, offsetX+0f, offsetX+0.5f, offsetY+0f, offsetY+0.5f, offsetZ+0f, offsetZ+0.5f);
+            }
+            glPopMatrix();
+        }
+        glPopMatrix();
     }
 
     void drawRotatedTexturedCubes(Rotation rotation, float offsetX, float offsetY, float offsetZ,
