@@ -180,7 +180,7 @@ public class Test3D extends Game {
                 fps, eyex, eyey, eyez, centerx+lx, centery, centerz+lz));
         jumpLogic();
         floatBuffer.clear();
-        floatBuffer.put(new float[]{eyex+lx, centery, eyez+lz, 1.0f});
+        floatBuffer.put(new float[]{eyex, centery, eyez, 1.0f});
         floatBuffer.flip();
     }
 
