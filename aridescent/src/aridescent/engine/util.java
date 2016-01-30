@@ -50,6 +50,7 @@ public class util {
                                         float fromZ, float toZ) {
         tex.bind();
         glBegin(GL_QUADS); // FIXME: Replace with GL_TRIANGLES
+        glNormal3f(0f, 0f, 1f);
         glTexCoord2f(0, 0);
         glVertex3f(fromX, fromY, fromZ);
         glTexCoord2f(0, tex.getHeight());
@@ -59,6 +60,7 @@ public class util {
         glTexCoord2f(tex.getWidth(), 0);
         glVertex3f(toX, fromY, fromZ);
 
+        glNormal3f(0f, 0f, -1f);
         glTexCoord2f(0, 0);
         glVertex3f(fromX, fromY, toZ);
         glTexCoord2f(0, tex.getHeight());
@@ -68,6 +70,7 @@ public class util {
         glTexCoord2f(tex.getWidth(), 0);
         glVertex3f(toX, fromY, toZ);
 
+        glNormal3f(0f, -1f, 0f);
         glTexCoord2f(0, 0);
         glVertex3f(fromX, fromY, fromZ);
         glTexCoord2f(0, tex.getHeight());
@@ -77,6 +80,7 @@ public class util {
         glTexCoord2f(tex.getWidth(), 0);
         glVertex3f(toX, fromY, fromZ);
 
+        glNormal3f(0f, 1f, 0f);
         glTexCoord2f(0, 0);
         glVertex3f(fromX, toY, fromZ);
         glTexCoord2f(0, tex.getHeight());
@@ -86,6 +90,7 @@ public class util {
         glTexCoord2f(tex.getWidth(), 0);
         glVertex3f(toX, toY, fromZ);
 
+        glNormal3f(-1f, 0f, 0f);
         glTexCoord2f(0, 0);
         glVertex3f(fromX, fromY, fromZ);
         glTexCoord2f(0, tex.getHeight());
@@ -95,6 +100,7 @@ public class util {
         glTexCoord2f(tex.getWidth(), 0);
         glVertex3f(fromX, toY, fromZ);
 
+        glNormal3f(1f, 0f, 0f);
         glTexCoord2f(0, 0);
         glVertex3f(toX, fromY, fromZ);
         glTexCoord2f(0, tex.getHeight());

@@ -5,6 +5,7 @@ import aridescent.constructs.Sphere;
 import aridescent.engine.Game;
 import aridescent.constructs.Crosshair;
 import aridescent.constructs.Text;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -15,6 +16,7 @@ import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.Random;
 
 import static aridescent.engine.util.*;
@@ -58,6 +60,9 @@ public class Test3D extends Game {
 
     private Random random = new Random();
     private Renderable[] renderables;
+
+    FloatBuffer floatBuffer;
+    FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(4);
 
     public static void main(String[] args) {
         try {
@@ -109,7 +114,9 @@ public class Test3D extends Game {
                         random.nextFloat(), 10, 10);
             }
         }
-
+        floatBuffer = BufferUtils.createFloatBuffer(4);
+        colorBuffer.put(new float[] {0f, .5f, .5f, 1f});
+        colorBuffer.flip();
         //setFPS(1500); // test fps with higher number to check performance drops
     }
 
@@ -122,6 +129,11 @@ public class Test3D extends Game {
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // ^ same
         //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, colorBuffer);
+
     }
 
     protected void render() {
@@ -137,6 +149,8 @@ public class Test3D extends Game {
         gluLookAt(eyex, eyey, eyez,
                 eyex+lx, centery, eyez+lz,
                 0f, 1f, 0f);
+        glPushMatrix();
+        glLight(GL_LIGHT0, GL_POSITION, floatBuffer);
 
         Sphere.renderSpheres(renderables);
 
@@ -144,12 +158,15 @@ public class Test3D extends Game {
         drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 0f, dirt, 10f, 10f, 1f); // flat platform
         drawRotatedTexturedCubes(Rotation.NONE, 0f, 0f, 0.5f, rock, 10f, 10f, 0.5f); // draws the "walkway", some overlapping blocks with plane
         drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 111f, dirt, 10f, 10f, 1f); // flat platform
+        glPopMatrix();
+        glDisable(GL_LIGHTING); // FIXME: is this neccesary?
         draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
         if (Keyboard.isKeyDown(Keyboard.KEY_F1)) {
             // FIXME: Better handling of when-held-overlay
             draw2DOverlay(overlayObjectsF1, DISPLAY_WIDTH, DISPLAY_HEIGHT);
         }
+        glEnable(GL_LIGHTING);
     }
 
     protected void update() {
@@ -158,6 +175,9 @@ public class Test3D extends Game {
                         "look: (%.2f, %.2f, %.2f)",
                 fps, eyex, eyey, eyez, centerx+lx, centery, centerz+lz));
         jumpLogic();
+        floatBuffer.clear();
+        floatBuffer.put(new float[]{eyex, eyey, eyez, 1.0f});
+        floatBuffer.flip();
     }
 
     void jumpLogic() {
