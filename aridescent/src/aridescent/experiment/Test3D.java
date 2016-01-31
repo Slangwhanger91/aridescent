@@ -27,12 +27,12 @@ import static org.lwjgl.util.glu.GLU.gluLookAt;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class Test3D extends Game {
-    private Float fovy = 45f;
-    private Float aspect = 800f/600f;
+    private Float fovy = 90f;
+    private Float aspect = DISPLAY_WIDTH/DISPLAY_WIDTH;
     private Float zNear = 0.1f;
     private Float zFar = 50f;
     private Float eyex = 4.95f;
-    private Float eyey = 2f;
+    private Float eyey = 2.5f;
     private Float eyez = 39.45f;
     private Float centerx = 0f;
     private Float centery = 2f;
@@ -45,8 +45,8 @@ public class Test3D extends Game {
     private Jumping jumpState = Jumping.NONE;
     private boolean jumping = false;
     private float jumpFrom = eyey;
-    private float jumpTo = jumpFrom+1f;
-    private float jumpIncrement = 0.04f; // increment per frame for now
+    private float jumpTo = jumpFrom+1.2f;
+    private float jumpIncrement = 0.05f; // increment per frame for now
 
     private Text text;
     private MultilineText f1text;
@@ -66,7 +66,7 @@ public class Test3D extends Game {
 
     public static void main(String[] args) {
         try {
-            new Test3D(800, 600).run();
+            new Test3D(1280, 720).run();
         } catch (LWJGLException e) {
             e.printStackTrace();
         }
@@ -123,6 +123,7 @@ public class Test3D extends Game {
     protected void init() {
         Mouse.setGrabbed(true); // Grab mouse for 1st person view
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glViewport(0, 0, DISPLAY_WIDTH_INT, DISPLAY_HEIGHT_INT);
         glEnable(GL_DEPTH_TEST); // enables proper display of objects-infront-of-other-objects
         //glDepthFunc(GL_LESS); // defines the function used to derive ^
         glEnable(GL_BLEND); // Neccesary for e.g. text display
