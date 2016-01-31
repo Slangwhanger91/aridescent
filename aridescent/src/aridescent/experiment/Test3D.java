@@ -1,10 +1,9 @@
 package aridescent.experiment;
 
-import aridescent.constructs.MultilineText;
 import aridescent.constructs.Sphere;
+import aridescent.engine.Camera;
 import aridescent.engine.Game;
-import aridescent.constructs.Crosshair;
-import aridescent.constructs.Text;
+import aridescent.engine.HUD;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -23,37 +22,15 @@ import static aridescent.engine.util.*;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.util.glu.GLU.gluLookAt;
-import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class Test3D extends Game {
-    private Float fovy = 90f;
-    private Float aspect = DISPLAY_WIDTH/DISPLAY_WIDTH;
-    private Float zNear = 0.1f;
-    private Float zFar = 50f;
-    private Float eyex = 4.95f;
-    private Float eyey = 2.5f;
-    private Float eyez = 39.45f;
-    private Float centerx = 0f;
-    private Float centery = 2f;
-    private Float centerz = 0f;
-
-    private float angle = 0f;
-    private Float lx = 0f;
-    private Float lz = -1f;
-
+    Camera camera = new Camera(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    HUD hud = new HUD(this, camera);
     private Jumping jumpState = Jumping.NONE;
     private boolean jumping = false;
-    private float jumpFrom = eyey;
+    private float jumpFrom = camera.eyey;
     private float jumpTo = jumpFrom+1.2f;
     private float jumpIncrement = 0.05f; // increment per frame for now
-
-    private Text text;
-    private MultilineText f1text;
-    private Crosshair xhair;
-    private Renderable[] overlayObjects;
-    private Renderable[] overlayObjectsF1;
-    // TODO: Make an "Updateable" for logic too, so only "registered" objects are "updated" (?)
 
     Texture dirt;
     Texture rock;
@@ -77,16 +54,14 @@ public class Test3D extends Game {
         System.out.println("Test3D");
 
         // Create overlay objects, drawn in as 2D layer later
-        text = new Text("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
+        //hud.newText("TBD", "Arial", 24, 0, 0, 0, Color.cyan);
         String f1string =
                 "Press G to ungrab mouse\n" +
                 "Press space to jump\n" +
                 "Press F1 for this help menu\n" +
                 "Hold shift for faster movement";
-        f1text = new MultilineText(f1string, "Arial", 24, 0, DISPLAY_HEIGHT_INT/2, (DISPLAY_HEIGHT_INT/2)-(24*4), Color.cyan);
-        xhair = new Crosshair(10f, DISPLAY_WIDTH, DISPLAY_HEIGHT, Color.red);
-        overlayObjects = new Renderable[]{text, xhair};
-        overlayObjectsF1 = new Renderable[]{f1text};
+        hud.newMultilineTextF1(f1string, "Arial", 24, 0, DISPLAY_HEIGHT_INT/2, (DISPLAY_HEIGHT_INT/2)-(24*4), Color.cyan);
+        hud.newCrosshair(10f, DISPLAY_WIDTH, DISPLAY_HEIGHT, Color.red);
 
         // Texture loading
         String fileName = "dirt.png";
@@ -123,7 +98,7 @@ public class Test3D extends Game {
     protected void init() {
         Mouse.setGrabbed(true); // Grab mouse for 1st person view
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glViewport(0, 0, DISPLAY_WIDTH_INT, DISPLAY_HEIGHT_INT);
+        //glViewport(0, 0, DISPLAY_WIDTH_INT, DISPLAY_HEIGHT_INT);
         glEnable(GL_DEPTH_TEST); // enables proper display of objects-infront-of-other-objects
         //glDepthFunc(GL_LESS); // defines the function used to derive ^
         glEnable(GL_BLEND); // Neccesary for e.g. text display
@@ -138,18 +113,8 @@ public class Test3D extends Game {
     }
 
     protected void render() {
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluPerspective(fovy, aspect, zNear, zFar); // define our "viewport" and how far/near we see
-
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-
-        // "Place" the camera (player) and define where we're "looking"
-        // eye = "player", center = point-being-looked-at
-        gluLookAt(eyex, eyey, eyez,
-                eyex+lx, centery, eyez+lz,
-                0f, 1f, 0f);
+        camera.reinit(); // should this be neccesary?
+        camera.render(); // 1st person, camera == player
         glPushMatrix();
         glLight(GL_LIGHT0, GL_POSITION, floatBuffer);
 
@@ -165,23 +130,17 @@ public class Test3D extends Game {
         drawRotatedTexturedCubes(Rotation.NONE, 0.5f, 0f, 111f, dirt, 10f, 10f, 1f); // flat platform
         glPopMatrix();
         glDisable(GL_LIGHTING); // FIXME: is this neccesary?
-        draw2DOverlay(overlayObjects, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_F1)) {
-            // FIXME: Better handling of when-held-overlay
-            draw2DOverlay(overlayObjectsF1, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-        }
+        hud.render();
         glEnable(GL_LIGHTING);
     }
 
     protected void update() {
-        text.setText(
-                String.format("FPS: %d pos: (%.2f, %.2f, %.2f) " +
-                        "look: (%.2f, %.2f, %.2f)",
-                fps, eyex, eyey, eyez, centerx+lx, centery, centerz+lz));
+        hud.update();
         jumpLogic();
+
+        // light floats
         floatBuffer.clear();
-        floatBuffer.put(new float[]{eyex, centery, eyez, 1.0f});
+        floatBuffer.put(new float[]{camera.eyex, camera.centery, camera.eyez, 1.0f});
         floatBuffer.flip();
     }
 
@@ -189,19 +148,19 @@ public class Test3D extends Game {
         if (jumping) {
             switch (jumpState) {
                 case UP:
-                    if (eyey >= jumpTo) {
+                    if (camera.eyey >= jumpTo) {
                         jumpState = Jumping.DOWN;
                     } else {
-                        eyey += jumpIncrement;
-                        centery += jumpIncrement;
+                        camera.eyey += jumpIncrement;
+                        camera.centery += jumpIncrement;
                     }
                     break;
                 case DOWN:
-                    if (eyey <= jumpFrom) {
+                    if (camera.eyey <= jumpFrom) {
                         jumpState = Jumping.NONE;
                     } else {
-                        eyey -= jumpIncrement;
-                        centery -= jumpIncrement;
+                        camera.eyey -= jumpIncrement;
+                        camera.centery -= jumpIncrement;
                     }
                     break;
                 case NONE:
@@ -273,23 +232,23 @@ public class Test3D extends Game {
                     float DY = Mouse.getDY(); // Vertical change (delta)
                     // FIXME: Find some math for Y-axis movement (tan?)
                     // Calculates new values for camera-looking-at-point (Y-axis)
-                    if (centery < 10f && DY > 0) {
-                        centery += DY * 0.005f;
-                    } else if (centery > -10f && DY < 0) {
-                        centery += DY * 0.005f;
+                    if (camera.centery < 10f && DY > 0) {
+                        camera.centery += DY * 0.005f;
+                    } else if (camera.centery > -10f && DY < 0) {
+                        camera.centery += DY * 0.005f;
                     }
 
                     float DX = Mouse.getDX(); // Horizontal change (delta)
 
                     // Calculates new values for camera-looking-at-point (X-axis)
                     if (DX > 0) {
-                        angle += 0.005f*DX;
-                        lx = (float)sin(angle);
-                        lz = (float)-cos(angle);
+                        camera.angle += 0.005f*DX;
+                        camera.lx = (float)sin(camera.angle);
+                        camera.lz = (float)-cos(camera.angle);
                     } else {
-                        angle -= 0.005f*-DX;
-                        lx = (float)sin(angle);
-                        lz = (float)-cos(angle);
+                        camera.angle -= 0.005f*-DX;
+                        camera.lx = (float)sin(camera.angle);
+                        camera.lz = (float)-cos(camera.angle);
                     }
                     break;
                 }
@@ -335,22 +294,22 @@ public class Test3D extends Game {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) ws_speed = 0.5f;
         else ws_speed = 0.1f;
         if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-            eyex += lx * ws_speed;
-            eyez += lz * ws_speed;
+            camera.eyex += camera.lx * ws_speed;
+            camera.eyez += camera.lz * ws_speed;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-            eyex -= lx * ws_speed;
-            eyez -= lz * ws_speed;
+            camera.eyex -= camera.lx * ws_speed;
+            camera.eyez -= camera.lz * ws_speed;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-            angle += 0.05f;
-            lx = (float)sin(angle);
-            lz = (float)-cos(angle);
+            camera.angle += 0.05f;
+            camera.lx = (float)sin(camera.angle);
+            camera.lz = (float)-cos(camera.angle);
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-            angle -= 0.05f;
-            lx = (float)sin(angle);
-            lz = (float)-cos(angle);
+            camera.angle -= 0.05f;
+            camera.lx = (float)sin(camera.angle);
+            camera.lz = (float)-cos(camera.angle);
         }
     }
 }

@@ -4,6 +4,7 @@ import org.lwjgl.util.Renderable;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.opengl.TextureImpl;
 
 public class MultilineText implements Renderable {
     private int xpos, ypos;
@@ -33,5 +34,6 @@ public class MultilineText implements Renderable {
             offset = line++*font.getLineHeight();
             font.drawString(xpos, ypos+offset, s, color);
         }
+        TextureImpl.bindNone();
     }
 }

@@ -5,6 +5,8 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.Renderable;
 
+import java.util.ArrayList;
+
 import static org.lwjgl.opengl.GL11.*;
 
 /** Base class for making a game. Comes with its own loop. */
@@ -126,25 +128,4 @@ public abstract class Game {
     /** Method that should contain code for checking keyboard and mouse events/information */
     protected abstract void poll();
 
-    /** Method for drawing an array of Renderable objects as a 2D overlay.
-     *
-     * @param renderables array of Renderable objects
-     * @param right variable representing width of display
-     * @param bottom variable representing height of display
-     */
-    public static void draw2DOverlay(Renderable[] renderables, float right, float bottom) {
-        glPushMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0, right, bottom, 1, -1f, 1f); // Change view to 2D alike before rendering objects
-        for (Renderable r: renderables) {
-            r.render();
-        }
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-    }
 }

@@ -9,6 +9,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.Renderable;
 
+import static aridescent.engine.HUD.draw2DOverlay;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Menu {
@@ -101,7 +102,7 @@ public class Menu {
 
             logic();
             //render();
-            Game.draw2DOverlay(renderables, game.getWidth(), game.getHeight());
+            draw2DOverlay(renderables, game.getWidth(), game.getHeight());
             poll();
 
             Display.update();
