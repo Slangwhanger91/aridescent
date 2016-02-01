@@ -37,7 +37,7 @@ public abstract class Game {
     }
 
     /** Method for starting the game */
-    protected void run() {
+    public void run() {
         init();
         loop();
     }

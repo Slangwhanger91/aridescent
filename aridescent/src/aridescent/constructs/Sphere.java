@@ -31,7 +31,6 @@ public class Sphere implements Renderable {
     }
 
     public static void renderSpheres(Renderable[] spheres) {
-        Color.darkGray.bind();
         glPushMatrix();
         glTranslatef(offsetX, offsetY, offsetZ);
         for (Renderable r: spheres) {
