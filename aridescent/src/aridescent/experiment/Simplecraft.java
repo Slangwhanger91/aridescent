@@ -180,9 +180,9 @@ class Player {
     public void poll() {
         float DY = Mouse.getDY();
         if (DY != 0) {
-            if (looky < 10f && DY > 0) {
+            if (DY > 0) {
                 looky += DY * 0.005f;
-            } else if (looky > -10f && DY < 0) {
+            } else {
                 looky += DY * 0.005f;
             }
         }
