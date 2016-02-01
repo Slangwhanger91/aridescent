@@ -58,7 +58,7 @@ public class Simplecraft extends Game {
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        gluPerspective(70f, 1280f/720f, 0.1f, 60f); // define our "viewport" and how far/near we see
+        gluPerspective(60f, 1280f/720f, 0.1f, 60f); // define our "viewport" and how far/near we see
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
