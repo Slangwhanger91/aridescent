@@ -201,7 +201,7 @@ public class Test3D extends Game {
             for (int j = 0; j < countColumn; j++) {
                 glTranslatef(columnIncrementX, columnIncrementY, columnIncrementZ);
                 glColor3f(1f, 1f, 1f);
-                drawTexturedCube(tex, offsetX+0f, offsetX+0.5f, offsetY+0f, offsetY+0.5f, offsetZ+0f, offsetZ+0.5f);
+                drawTexturedCube(tex, offsetX+0f, offsetX+1f, offsetY+0f, offsetY+1f, offsetZ+0f, offsetZ+1f);
             }
             glPopMatrix();
         }

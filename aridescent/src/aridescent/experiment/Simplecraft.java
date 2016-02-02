@@ -78,7 +78,7 @@ public class Simplecraft extends Game {
     @Override
     protected void update() {
         player.jumpLogic();
-        topLeftText.setText(String.format("[%d] xyz(%.2f, %.2f, %.2f) look(%.2f, %.2f, %.2f",
+        topLeftText.setText(String.format("[%d] xyz(%.2f, %.2f, %.2f) look(%.2f, %.2f, %.2f)",
                 fps,
                 player.x, player.y, player.z,
                 player.getLookX(), player.looky, player.getLookZ()));
