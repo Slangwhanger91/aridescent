@@ -19,7 +19,6 @@ public abstract class Game {
 
     private int fpsTarget = 100;
     private int glClearBits = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
-    private Menu menu;
 
     /** Constructor for Game inheritors
      *
@@ -72,7 +71,7 @@ public abstract class Game {
 
             Display.update();
             Display.sync(fpsTarget);
-            util.debug("tick=%d", tick);
+            util.debug(1, "tick=%d, fps=%d", tick, fps);
             tick++;
         }
     }
@@ -91,19 +90,6 @@ public abstract class Game {
      */
     protected void setGlClear(int bits) {
         glClearBits = bits;
-    }
-
-    /** Method for choosing menu shown when {@link #showMenu} is called.
-     *
-     * @param menu menu to set
-     */
-    protected void setMenu(Menu menu) {
-        this.menu = menu;
-    }
-
-    /** Method for displaying the chosen menu when wanted */
-    protected void showMenu() {
-        menu.show();
     }
 
     /** Method for returning height of display as a float */

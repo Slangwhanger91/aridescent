@@ -1,7 +1,6 @@
 package aridescent.constructs;
 
 import org.lwjgl.util.Renderable;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.TextureImpl;
 
 import static org.lwjgl.opengl.GL11.*;

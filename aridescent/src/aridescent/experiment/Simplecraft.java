@@ -92,7 +92,7 @@ public class Simplecraft extends Game {
             exit();
         }
 
-        debug(player.toString());
+        debug(1, player.toString());
     }
 
     void renderOverlay() {

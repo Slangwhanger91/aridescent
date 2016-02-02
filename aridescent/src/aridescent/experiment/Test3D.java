@@ -253,7 +253,7 @@ public class Test3D extends Game {
                     break;
                 }
                 default: { // Mouse button was clicked
-                    debug2("clicked mbutton=%d", event);
+                    debug(1, "clicked mbutton=%d", event);
                     break;
                 }
             }
