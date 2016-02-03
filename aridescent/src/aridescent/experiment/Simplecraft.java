@@ -12,8 +12,7 @@ import org.newdawn.slick.Color;
 import java.nio.FloatBuffer;
 
 import static aridescent.engine.util.debug;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import static java.lang.Math.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.*;
 
@@ -31,18 +30,11 @@ public class Simplecraft extends Game {
         this.player = new Player();
         this.map = new Cubemap();
 
-        player.z = -4f;
-        player.y = 0.5f;
-        // look towards cube
-        player.xzangle = -3.29f;
-        player.xfactor = 0.15f;
-        player.zfactor = 0.98f;
-        player.looky = 0.41f;
-
         testSphere = new Sphere(6f+2.5f, 2.5f, 0f, 2.5f, 21, 21);
 
         colorBuffer.put(new float[] {0f, .9f, .9f, 1f});
         colorBuffer.flip();
+        setFPS(60);
     }
 
     @Override
@@ -71,17 +63,17 @@ public class Simplecraft extends Game {
         glLoadIdentity();
         player.render(); // 1st person -> player == camera
         map.drawCube(0f, 5f, 0f, 5f, 0f, 5f);
+        map.drawGrid(-100f, 100f, -0.25f, 5f);
         testSphere.render();
         renderOverlay();
     }
 
     @Override
     protected void update() {
-        player.jumpLogic();
         topLeftText.setText(String.format("[%d] xyz(%.2f, %.2f, %.2f) look(%.2f, %.2f, %.2f)",
                 fps,
-                player.x, player.y, player.z,
-                player.getLookX(), player.looky, player.getLookZ()));
+                player.position.x, player.position.y, player.position.z,
+                player.look.x, player.look.y, player.look.z));
     }
 
     @Override
@@ -121,53 +113,97 @@ public class Simplecraft extends Game {
     }
 }
 
-class Player {
+class Vec3f {
     float x, y, z;
-    float looky;
 
-    float xzangle;
-    float xfactor, zfactor;
-    float yangle;
+    Vec3f() {
+        x = 0f;
+        y = 0f;
+        z = 0f;
+    }
+
+    Vec3f(float e1, float e2, float e3) {
+        this.x = e1;
+        this.y = e2;
+        this.z = e3;
+    }
+
+    Vec3f add(Vec3f other) {
+        return new Vec3f(x + other.x, y + other.y, z + other.z);
+    }
+
+    Vec3f sub(Vec3f other) {
+        return new Vec3f(x - other.x, y - other.y, z - other.z);
+    }
+
+    Vec3f scale(float other) {
+        return new Vec3f(x * other, y * other, z * other);
+    }
+
+    Vec3f cross(Vec3f other) {
+        return new Vec3f(
+                y * other.z - z * other.y,
+                z * other.x - x * other.z,
+                x * other.y - y * other.x);
+    }
+
+    Vec3f getNormalized() {
+        float m = length();
+        return new Vec3f(x / m, y / m, z / m);
+    }
+
+    float length() {
+        return (float)sqrt(x * x + y * y + z * z);
+    }
+}
+
+class Player {
+    float pitch, yaw;
+    Vec3f look, direction, position, up;
 
     Jumping jumpState = Jumping.NONE;
-    float jumpFrom = y;
-    float jumpTo = y+1f;
-    float jumpIncrement = 0.04f;
+    float jumpFrom;
+    float jumpTo;
+    float jumpIncrement = 0.1f;
     boolean jumping = false;
 
     float moveSpeed = 0.1f;
+    float sensitivity = 0.05f;
+
+    Player() {
+        look = new Vec3f();
+        direction = new Vec3f();
+        position = new Vec3f();
+        up = new Vec3f(0f, 1f, 0f);
+
+
+        position.z = -4f;
+        position.y = 0.25f;
+        jumpFrom = position.y;
+        jumpTo = jumpFrom+1f;
+    }
 
     void render() {
-        gluLookAt(x, y, z,
-                getLookX(), looky, getLookZ(),
-                0f, 1f, 0f);
-    }
-
-    float getLookX() {
-        return x+xfactor;
-    }
-
-    float getLookZ() {
-        return z+zfactor;
+        gluLookAt(position.x, position.y, position.z,
+                look.x, look.y, look.z,
+                up.x, up.y, up.z);
     }
 
     void jumpLogic() {
         if (jumping) {
             switch (jumpState) {
                 case UP:
-                    if (y >= jumpTo) {
+                    if (position.y >= jumpTo) {
                         jumpState = Jumping.DOWN;
                     } else {
-                        y += jumpIncrement;
-                        looky += jumpIncrement;
+                        position.y += jumpIncrement;
                     }
                     break;
                 case DOWN:
-                    if (y <= jumpFrom) {
+                    if (position.y <= jumpFrom) {
                         jumpState = Jumping.NONE;
                     } else {
-                        y -= jumpIncrement;
-                        looky -= jumpIncrement;
+                        position.y -= jumpIncrement;
                     }
                     break;
                 case NONE:
@@ -178,67 +214,52 @@ class Player {
     }
 
     public void poll() {
-        float DY = Mouse.getDY();
-        if (DY != 0) {
-            if (DY > 0) {
-                looky += DY * 0.005f;
-            } else {
-                looky += DY * 0.005f;
-            }
-        }
-
-        float DX = Mouse.getDX();
-        if (DX != 0) {
-            if (DX > 0) {
-                xzangle += 0.005f*DX;
-                xfactor = (float)sin(xzangle);
-                zfactor = (float)-cos(xzangle);
-            } else {
-                xzangle -= 0.005f*-DX;
-                xfactor = (float)sin(xzangle);
-                zfactor = (float)-cos(xzangle);
-            }
-        }
-
-        /*
-        if (Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !jumping) {
-            jumping = true;
-            jumpState = Jumping.UP;
-        }
-        */
-
         float speed = moveSpeed;
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
             speed *= 4;
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-            y += speed;
-            looky += speed;
+            if (!jumping) {
+                jumping = true;
+                jumpState = Jumping.UP;
+            }
         }
 
-        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-            y -= speed;
-            looky -= speed;
-        }
-
+        Vec3f np = position;
         if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-            x += xfactor * speed;
-            z += zfactor * speed;
+            np = np.add(direction.scale(speed));
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-            x -= xfactor * speed;
-            z -= zfactor * speed;
+            np = np.sub(direction.scale(speed));
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-            xzangle += 0.05f;
-            xfactor = (float)sin(xzangle);
-            zfactor = (float)-cos(xzangle);
+            np = np.add(direction.cross(up).getNormalized().scale(speed));
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-            xzangle -= 0.05f;
-            xfactor = (float)sin(xzangle);
-            zfactor = (float)-cos(xzangle);
+            np = np.sub(direction.cross(up).getNormalized().scale(speed));
         }
+
+        position.x = np.x;
+        position.z = np.z;
+        jumpLogic();
+
+        float dy = Mouse.getDY();
+        float dx = Mouse.getDX();
+
+        yaw += dx * sensitivity;
+        pitch += dy * sensitivity;
+
+        if (pitch > 89f) {
+            pitch = 89f;
+        } else if (pitch < -89f) {
+            pitch = -89f;
+        }
+
+        direction.x = (float)cos(toRadians(pitch)) * (float)cos(toRadians(yaw));
+        direction.y = (float)sin(toRadians(pitch));
+        direction.z = (float)cos(toRadians(pitch)) * (float)sin(toRadians(yaw));
+        direction = direction.getNormalized();
+        look = position.add(direction);
     }
 
     enum Jumping {
@@ -248,13 +269,11 @@ class Player {
     @Override
     public String toString() {
         return String.format("Player: x=%f, y=%f, z=%f\n" +
-                "xzangle=%f, xfactor=%f, zfactor=%f\n" +
                 "jumpingState=%s, jumpingIncrement=%f, jumpFrom=%f, jumpTo=%f\n" +
-                "moveSpeed=%f, looky=%f, getLookX=%f, getLookZ=%f\n",
-                x, y, z,
-                xzangle, xfactor, zfactor,
+                "moveSpeed=%f\n",
+                position.x, position.y, position.z,
                 jumpState, jumpIncrement, jumpFrom, jumpTo,
-                moveSpeed, looky, getLookX(), getLookZ());
+                moveSpeed);
     }
 }
 
@@ -307,5 +326,20 @@ class Cubemap {
         glVertex3f(toX, toY, toZ);
         glVertex3f(toX, toY, fromZ);
         glEnd();
+    }
+
+    void drawGrid(float from, float to, float y, float increment) {
+        glDisable(GL_LIGHTING);
+        glColor3f(0.3f, 0.3f, 0.3f);
+        glBegin(GL_LINES);
+        for (float i = from; i < to; i += increment) {
+            glVertex3f(i, y, to);
+            glVertex3f(i, y, from);
+
+            glVertex3f(from, y, i);
+            glVertex3f(to, y, i);
+        }
+        glEnd();
+        glEnable(GL_LIGHTING);
     }
 }
